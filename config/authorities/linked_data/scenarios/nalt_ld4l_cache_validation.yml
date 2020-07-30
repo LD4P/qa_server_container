@@ -1,0 +1,47 @@
+# Supported subauthorities:  # TODO: I don't think these subauths are correct.  Probably copy-paste error.
+#   person
+#   organization
+#   place
+#   intangible
+#   geocoordinates
+#   work
+---
+authority:
+  service: ld4l_cache
+  context: true
+search:
+  #------------------
+  # Connection tests
+  #------------------
+  -
+    query: milk
+  #------------------
+  #  Accuracy tests
+  #------------------
+  -
+    query: soil fertility
+    subject_uri: "http://lod.nal.usda.gov/nalt/968"
+    position: 5
+    replacements:
+      maxRecords: '10'
+  -
+    query: vector potential
+    subject_uri: "http://lod.nal.usda.gov/nalt/34062"
+    position: 5
+    replacements:
+      maxRecords: '10'
+  -
+    query: meat tenderness
+    subject_uri: "http://lod.nal.usda.gov/nalt/51773"
+    position: 3
+    replacements:
+      maxRecords: '8'
+  -
+    query: recorte de los cascos
+    subject_uri: "http://lod.nal.usda.gov/nalt/9231"
+    postion: 3
+    replacements:
+      maxRecords: '5'
+term:
+  -
+    identifier: 'http://lod.nal.usda.gov/nalt/20627'

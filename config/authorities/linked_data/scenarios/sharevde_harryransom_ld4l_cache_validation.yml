@@ -1,0 +1,24 @@
+---
+# ERROR: CAN'T ACCESS THIS AUTHORITY AT ALL
+authority:
+  service: ld4l_cache
+  context: true
+search:
+  -
+    query: 'orbis'
+  -
+    query: 'orbis'
+    subauth: 'work'
+  -
+    query: 'orbis'
+    subauth: 'superwork'
+  -
+    query: 'orbis'
+    subauth: 'instance'
+term:
+  -
+    identifier: 'http://share-vde.org/sharevde/rdfBibframe/Work/1177035'
+  -
+    identifier: 'http://share-vde.org/sharevde/rdfBibframe/Work/76904'
+  -
+    identifier: 'http://share-vde.org/sharevde/rdfBibframe/Instance/RANSOMCENTERocm13363199'

@@ -1,0 +1,23 @@
+---
+authority:
+  service: ld4l_cache
+  context: true
+search:
+  -
+    query: 'mark twain'
+  -
+    query: 'mark twain'
+    subauth: 'work'
+  -
+    query: 'land use'
+    subauth: 'superwork'
+  -
+    query: 'mark twain'
+    subauth: 'instance'
+term:
+  -
+    identifier: 'http://share-vde.org/sharevde/rdfBibframe/Work/a640f1c3-982f-3ee2-a516-df7e6307d8c8'
+  -
+    identifier: 'http://share-vde.org/sharevde/rdfBibframe/Work/ca4b12f5-27e8-3c9c-9ccb-acf9c3aea5cc'
+  -
+    identifier: 'http://share-vde.org/sharevde/rdfBibframe/Instance/UWASHINGTONon1015264193'

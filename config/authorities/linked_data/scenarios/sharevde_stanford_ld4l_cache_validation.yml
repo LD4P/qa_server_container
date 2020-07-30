@@ -1,0 +1,23 @@
+---
+authority:
+  service: ld4l_cache
+  context: true
+search:
+  -
+    query: 'mark twain'
+  -
+    query: 'mark twain'
+    subauth: 'work'
+  -
+    query: 'mark twain'
+    subauth: 'superwork'
+  -
+    query: 'mark twain'
+    subauth: 'instance'
+term:
+  -
+    identifier: 'http://share-vde.org/sharevde/rdfBibframe/Work/8727595'
+  -
+    identifier: 'http://share-vde.org/sharevde/rdfBibframe/Work/8752534'
+  -
+    identifier: 'http://share-vde.org/sharevde/rdfBibframe/Instance/STANFORDa4803657'

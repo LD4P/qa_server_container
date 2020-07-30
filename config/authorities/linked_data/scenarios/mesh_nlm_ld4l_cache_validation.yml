@@ -1,0 +1,57 @@
+# Supported subauthorities:
+#   subject
+#   publication_type
+---
+authority:
+  service: ld4l_cache
+  context: true
+search:
+  #------------------
+  # Connection tests
+  #------------------
+#  -
+#    query: malignant
+  -
+    query: Malignant Hyperthermia
+    subauth: subject
+  -
+    query: Spain
+    subauth: subject
+    result_size: 75
+  -
+    query: Address
+    subauth: publication_type
+    result_size: 80
+  #------------------
+  #  Accuracy tests
+  #------------------
+  -
+    query: Malignant Hyperthermia
+    subject_uri: "http://id.nlm.nih.gov/mesh/D008305"
+    position: 3
+    replacements:
+      maxRecords: '5'
+  -
+    query: Heart Attack
+    subauth: subject
+    subject_uri: "http://id.nlm.nih.gov/mesh/D009203"
+    position: 3
+    replacements:
+      maxRecords: '5'
+  -
+    query: Letter
+    subauth: publication_type
+    subject_uri: "http://id.nlm.nih.gov/mesh/D016422"
+    position: 3
+    replacements:
+      maxRecords: '8'
+  -
+    query: Email
+    subauth: subject
+    subject_uri: "http://id.nlm.nih.gov/mesh/D034742"
+    postion: 5
+    replacements:
+      maxRecords: '10'
+term:
+  -
+    identifier: 'http://id.nlm.nih.gov/mesh/T727346'

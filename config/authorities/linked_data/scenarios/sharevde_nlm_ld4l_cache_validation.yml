@@ -1,0 +1,23 @@
+---
+authority:
+  service: ld4l_cache
+  context: true
+search:
+  -
+    query: 'tumor'
+  -
+    query: 'tumor'
+    subauth: 'work'
+  -
+    query: 'tumor'
+    subauth: 'superwork'
+  -
+    query: 'tumor'
+    subauth: 'instance'
+term:
+  -
+    identifier: 'http://share-vde.org/sharevde/rdfBibframe/Work/10957169'
+  -
+    identifier: 'http://share-vde.org/sharevde/rdfBibframe/Work/bc4a6959-2cd1-374d-b8ff-99c98e01e38e'
+  -
+    identifier: 'http://share-vde.org/sharevde/rdfBibframe/Instance/NLM101696865'

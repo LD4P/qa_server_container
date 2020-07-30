@@ -1,0 +1,23 @@
+---
+authority:
+  service: ld4l_cache
+  context: true
+search:
+  -
+    query: 'mark twain'
+  -
+    query: 'mark twain'
+    subauth: 'work'
+  -
+    query: 'mark twain'
+    subauth: 'superwork'
+  -
+    query: 'mark twain'
+    subauth: 'instance'
+term:
+  -
+    identifier: 'http://share-vde.org/sharevde/rdfBibframe/Work/171591'
+  -
+    identifier: 'http://share-vde.org/sharevde/rdfBibframe/Work/33584275'
+  -
+    identifier: 'http://share-vde.org/sharevde/rdfBibframe/Instance/YALE1484843'

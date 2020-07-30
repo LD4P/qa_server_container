@@ -1,0 +1,28 @@
+# Supported subauthorities:  # TODO: I don't think these subauths are correct.  Probably copy-paste error.
+#   person
+#   organization
+#   place
+#   intangible
+#   geocoordinates
+#   work
+---
+authority:
+  service: ld4l_cache
+search:
+  #------------------
+  # Connection tests
+  #------------------
+  -
+    query: 'Barack Obama'
+  #------------------
+  #  Accuracy tests
+  #------------------
+  -
+    query: Volleyball
+    position: 5
+    subject_uri: "http://dbpedia.org/resource/Volleyball"
+    replacements:
+      maxRecords: '10'
+term:
+  -
+    identifier: 'http://dbpedia.org/resource/Barack_Obama'

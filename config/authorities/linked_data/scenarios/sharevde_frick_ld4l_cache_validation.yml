@@ -1,0 +1,23 @@
+---
+authority:
+  service: ld4l_cache
+  context: true
+search:
+  -
+    query: 'mark twain'
+  -
+    query: 'mark twain'
+    subauth: 'work'
+  -
+    query: 'Oxford companion to music'
+    subauth: 'superwork'
+  -
+    query: 'mark twain'
+    subauth: 'instance'
+term:
+  -
+    identifier: 'http://share-vde.org/sharevde/rdfBibframe/Work/22904480'
+  -
+    identifier: 'http://share-vde.org/sharevde/rdfBibframe/Work/afd3aa77-bc62-3b70-854f-94d25e0afdf7'
+  -
+    identifier: 'http://share-vde.org/sharevde/rdfBibframe/Instance/FRICK14000248'

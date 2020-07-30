@@ -1,0 +1,23 @@
+---
+authority:
+  service: ld4l_cache
+  context: true
+search:
+  -
+    query: 'mark twain'
+  -
+    query: 'mark twain'
+    subauth: 'work'
+  -
+    query: 'mark twain'
+    subauth: 'superwork'
+  -
+    query: 'mark twain'
+    subauth: 'instance'
+term:
+  -
+    identifier: 'http://share-vde.org/sharevde/rdfBibframe/Work/3326601'
+  -
+    identifier: 'http://share-vde.org/sharevde/rdfBibframe/Work/9d0ca9ef-b400-3233-890e-0a95c6517b36'
+  -
+    identifier: 'http://share-vde.org/sharevde/rdfBibframe/Instance/UMINNESOTA9953730970001701'
