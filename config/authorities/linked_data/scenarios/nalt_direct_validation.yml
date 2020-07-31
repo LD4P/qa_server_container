@@ -1,6 +1,0 @@
----
-authority:
-  service: direct
-term:
-  -
-    identifier: 'http://lod.nal.usda.gov/nalt/20627'
