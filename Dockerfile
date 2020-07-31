@@ -16,6 +16,7 @@ ARG EXTRA_APK_PACKAGES="git sqlite-dev"
 RUN apk add --update --no-cache \
       git \
       bash \
+      nodejs \
       build-base \
       mariadb-dev \
       sqlite-dev \
