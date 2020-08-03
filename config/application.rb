@@ -12,8 +12,8 @@ module QaServer
     config.load_defaults 5.1
     config.web_console.development_only = false if config.respond_to?(:web_console) && !Rails.env.production?
 
-    Qa::Authorities::Discogs::GenericAuthority.discogs_key = ENV['DISCOGS_KEY']
-    Qa::Authorities::Discogs::GenericAuthority.discogs_secret = ENV['DISCOGS_SECRET']
+    # Qa::Authorities::Discogs::GenericAuthority.discogs_key = ENV['DISCOGS_KEY']
+    # Qa::Authorities::Discogs::GenericAuthority.discogs_secret = ENV['DISCOGS_SECRET']
 
     config.to_prepare do
       QaServer::AuthorityListPresenter.prepend PrependedPresenters::AuthorityListPresenter
