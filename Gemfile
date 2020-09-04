@@ -15,8 +15,8 @@ gem 'qa', '~> 5.5'
 gem 'linkeddata'
 
 # Database
-# gem 'mysql2'
-gem 'pg'
+gem 'mysql2'
+# gem 'pg'
 
 
 # Other gems

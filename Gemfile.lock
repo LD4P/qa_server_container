@@ -193,6 +193,7 @@ GEM
     minitest (5.14.1)
     multi_json (1.14.1)
     multipart-post (2.1.1)
+    mysql2 (0.5.3)
     net-http-persistent (3.1.0)
       connection_pool (~> 2.2)
     nio4r (2.5.2)
@@ -204,7 +205,6 @@ GEM
     parser (2.7.0.2)
       ast (~> 2.4.0)
     parslet (2.0.0)
-    pg (1.2.3)
     powerpack (0.1.2)
     public_suffix (4.0.3)
     puma (4.3.5)
@@ -448,7 +448,7 @@ DEPENDENCIES
   linkeddata
   listen
   lograge
-  pg
+  mysql2
   puma (~> 4.3)
   qa (~> 5.5)
   qa_server (~> 7.4)

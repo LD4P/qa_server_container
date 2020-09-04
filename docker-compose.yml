@@ -33,7 +33,8 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - postgres
+      - mysql
+#      - postgres
 
   db_migrate:
     image: ld4p/qa_server:v1
@@ -43,34 +44,49 @@ services:
     entrypoint: ["sh", "-c"]
     command: db-migrate-seed.sh
     depends_on:
-      - postgres
+      - mysql
+    #      - postgres
     volumes:
       - .:/app/ld4p/qa_server-webapp # use for debugging
 #      - app_src:/app/ld4p/qa_server-webapp # use when not debugging
       - rails-public:/app/ld4p/qa_server-webapp/public
       - rails-tmp:/app/ld4p/qa_server-webapp/tmp
 
-  postgres:
-    image: postgres:10.6-alpine
+  mysql:
+    image: mysql:5.7
     restart: always
-    container_name: ld4p-qa_server-postgres
+    container_name: ld4p-qa_server-mysql
     environment:
-      - POSTGRES_USER=db_user
-      - POSTGRES_PASSWORD=Ureka
-      - POSTGRES_DB=qa_server
-      - POSTGRES_HOST_AUTH_METHOD=trust
-    #    healthcheck:
-#      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
-#      interval: 10s
-#      timeout: 5s
-#      retries: 5
+      - MYSQL_ROOT_PASSWORD=mysql_ld4p_root
+      - MYSQL_USER=qa_server_user
+      - MYSQL_PASSWORD=ld4p
     ports:
-      - "5432:5432"
+      - "3306:3306"
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - db-mysql-data:/var/lib/mysql/data
+
+#  postgres:
+#    image: postgres:10.6-alpine
+#    restart: always
+#    container_name: ld4p-qa_server-postgres
+#    environment:
+#      - POSTGRES_USER=db_user
+#      - POSTGRES_PASSWORD=Ureka
+#      - POSTGRES_DB=qa_server
+#      - POSTGRES_HOST_AUTH_METHOD=trust
+#    #    healthcheck:
+##      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+##      interval: 10s
+##      timeout: 5s
+##      retries: 5
+#    ports:
+#      - "5432:5432"
+#    volumes:
+#      - db-postgres-data:/var/lib/postgresql/data
 
 volumes:
-  db-data:
+  db-mysql-data:
+#  db-postgres-data:
   gems:
   rails-public:
   rails-tmp:
