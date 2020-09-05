@@ -1,14 +1,8 @@
-#!/bin/sh
+#! /bin/sh
 
-host=$(printf "%s\n" "$1"| cut -d : -f 1)
-port=$(printf "%s\n" "$1"| cut -d : -f 2)
-
-shift 1
-
-while ! nc -z "$host" "$port"
-do
-  echo "waiting for $host:$port"
-  sleep 1
+# Wait for MySQL
+until nc -z -v -w30 $DB_HOST $DB_PORT; do
+ echo 'Waiting for MySQL...'
+ sleep 1
 done
-
-exec "$@"
+echo "MySQL is up and running!"

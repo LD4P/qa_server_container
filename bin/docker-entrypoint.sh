@@ -7,22 +7,17 @@ echo '====================================================================='
 
 set -e
 
-if [ "$WAIT_FOR_POSTGRES" == "true" ]; then
-  echo -n Waiting for postgres to start...
-  while ! pg_isready -h ${POSTGRES_HOST:-localhost} > /dev/null; do
-    sleep 0.5; echo -n .; done
-  echo done
-fi
+# Wait for DB services
+sh ./bin/db-wait.sh
 
-if [ "$PREPARE_DATABASE" == "true" ]; then
-  bundle exec rake db:create db:migrate
-fi
+# Prepare DB (Migrate if exists; else Create db & Migrate)
+sh ./bin/db-prepare.sh
+
+# Pre-compile app assets
+sh ./bin/asset-pre-compile.sh
 
 # For development check if the gems as installed. If not, install them.
-if ! [ bundle check ];  then
-  gem install bundler:2.1.4
-  bundle install
-fi
+sh ./bin/bundle-gems.sh
 
 # Remove a potentially pre-existing server.pid for Rails
 rm -f /app/tmp/pids/server.pid

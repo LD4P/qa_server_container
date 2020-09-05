@@ -10,22 +10,22 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20200218125146) do
+ActiveRecord::Schema.define(version: 2020_02_18_125146) do
 
-  create_table "performance_history", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "performance_history", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.datetime "dt_stamp"
     t.string "authority"
     t.integer "action"
     t.integer "size_bytes"
-    t.float "retrieve_time_ms", limit: 24
-    t.float "graph_load_time_ms", limit: 24
-    t.float "retrieve_plus_graph_load_time_ms", limit: 24
-    t.float "normalization_time_ms", limit: 24
-    t.float "action_time_ms", limit: 24
+    t.float "retrieve_time_ms"
+    t.float "graph_load_time_ms"
+    t.float "retrieve_plus_graph_load_time_ms"
+    t.float "normalization_time_ms"
+    t.float "action_time_ms"
     t.index ["action"], name: "index_performance_history_on_action"
   end
 
-  create_table "scenario_run_history", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "scenario_run_history", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.bigint "scenario_run_registry_id"
     t.integer "status", default: 2
     t.string "authority_name"
@@ -45,7 +45,7 @@ ActiveRecord::Schema.define(version: 20200218125146) do
     t.index ["url"], name: "index_scenario_run_history_on_url"
   end
 
-  create_table "scenario_run_registry", force: :cascade, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8" do |t|
+  create_table "scenario_run_registry", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.datetime "dt_stamp"
   end
 
