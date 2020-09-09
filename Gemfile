@@ -5,21 +5,25 @@ git_source(:github) do |repo_name|
   "https://github.com/#{repo_name}.git"
 end
 
-gem 'rails', '~> 5.1.6'
+gem 'rails', '~> 5.2'
 gem 'dotenv-deployment'
 gem 'dotenv-rails'
 
 # Required gems for QA and linked data access
 gem 'qa_server', '~> 7.4'
-gem 'qa', '~> 5.3'
+gem 'qa', '~> 5.5'
 gem 'linkeddata'
+
+# Database
+gem 'mysql2'
+# gem 'pg'
+
 
 # Other gems
 gem 'coffee-rails', '~> 4.2'
 gem 'concurrent-ruby'
 gem 'jbuilder', '~> 2.5'
 gem 'lograge'
-gem 'mysql2'
 gem 'puma', '~> 4.3'
 gem 'sass-rails', '~> 5.0'
 gem 'turbolinks', '~> 5'

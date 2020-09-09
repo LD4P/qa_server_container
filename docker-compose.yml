@@ -7,78 +7,88 @@ services:
   app: &app
     build:
       context: .
-      args:
-        RAILS_ENV: development
-        BUNDLE_WITHOUT: test
-#        EXTRA_APK_PACKAGES: 'git postgresql-dev'
+#      target: ld4p/qa_server
+    image: ld4p/qa_server:v1
+    container_name: ld4p-qa_server-app
     stdin_open: true
     tty: true
-    environment:
-      - DATABASE_URL=mysql://qa_server_user:ld4p@mysql/qa_server?pool=5
-      - REDIS_HOST=redis
-    depends_on:
-      - db_migrate
-      - memcached
-      - mysql
-      - redis
-      - imagemagick
+    user: root
+    env_file:
+      - .env
+#    command: ["rails", "server", "--pid=/tmp/server.pid"]
+#    environment:
+#      - POSTGRES_HOST=pg
+#      - POSTGRES_USER=db_user
+#      - POSTGRES_PASSWORD=Eureka
+#      - RAILS_ENV
+#      args:
+#        RAILS_ENV: development
+#        BUNDLE_WITHOUT: test
+    volumes:
+      - .:/app/ld4p/qa_server-webapp # use for debugging
+#      - app_src:/app/ld4p/qa_server-webapp # use when not debugging
+      - rails-public:/app/ld4p/qa_server-webapp/public
+      - rails-tmp:/app/ld4p/qa_server-webapp/tmp
+      - gems:/usr/local/bundle
     ports:
-      - 3000:3000
-    volumes:
-      - .qa_server_app:/data
-
-  db_migrate:
-    <<: *app
-    environment:
-      - DATABASE_URL=mysql://qa_server_user:ld4p@mysql/qa_server?pool=5
-      - REDIS_HOST=redis
-    command:
-      - bundle
-      - exec
-      - rails
-      - db:create
-      - db:migrate
+      - "3000:3000"
     depends_on:
       - mysql
-    ports: []
-    volumes:
-      - .qa_server_app:/data
+#      - postgres
+
+#  db_migrate:
+#    image: ld4p/qa_server:v1
+#    user: root
+#    env_file:
+#      - .env
+#    entrypoint: ["sh", "-c"]
+#    command: db-migrate-seed.sh
+#    depends_on:
+#      - mysql
+#    #      - postgres
+#    volumes:
+#      - .:/app/ld4p/qa_server-webapp # use for debugging
+##      - app_src:/app/ld4p/qa_server-webapp # use when not debugging
+#      - rails-public:/app/ld4p/qa_server-webapp/public
+#      - rails-tmp:/app/ld4p/qa_server-webapp/tmp
 
   mysql:
-    image: mysql:5.7
-    command: --default-authentication-plugin=mysql_native_password
+    image: mariadb
     restart: always
+    container_name: ld4p-qa_server-mysql
     environment:
       - MYSQL_ROOT_PASSWORD=mysql_ld4p_root
+      - MYSQL_DATABASE=qa_server_development
       - MYSQL_USER=qa_server_user
       - MYSQL_PASSWORD=ld4p
-      - MYSQL_DATABASE=qa_server
     ports:
       - "3306:3306"
     volumes:
-      - db:/var/lib/mysql/data
+      - db-mysql-data:/var/lib/mysql/data
 
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    restart: always
-    depends_on:
-      - mysql
-    ports:
-      - 8080:8080
-
-  memcached:
-    image: bitnami/memcached
-    ports:
-      - '11211:11211'
-
-  redis:
-    image: redis:5-alpine
-    volumes:
-      - redis:/data
-
-  imagemagick:
-    image: dpokidov/imagemagick
+#  postgres:
+#    image: postgres:10.6-alpine
+#    restart: always
+#    container_name: ld4p-qa_server-postgres
+#    environment:
+#      - POSTGRES_USER=db_user
+#      - POSTGRES_PASSWORD=Ureka
+#      - POSTGRES_DB=qa_server
+#      - POSTGRES_HOST_AUTH_METHOD=trust
+#    #    healthcheck:
+##      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+##      interval: 10s
+##      timeout: 5s
+##      retries: 5
+#    ports:
+#      - "5432:5432"
+#    volumes:
+#      - db-postgres-data:/var/lib/postgresql/data
 
 volumes:
-  db:
-  redis:
+  db-mysql-data:
+#  db-postgres-data:
+  gems:
+  rails-public:
+  rails-tmp:
+#  app_src:
