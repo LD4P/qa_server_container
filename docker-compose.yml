@@ -27,6 +27,7 @@ services:
     volumes:
       - .:/app/ld4p/qa_server-webapp # use for debugging
 #      - app_src:/app/ld4p/qa_server-webapp # use when not debugging
+      - ${AUTHORITIES_PATH}:/app/ld4p/qa_server-webapp/config/authorities
       - rails-public:/app/ld4p/qa_server-webapp/public
       - rails-tmp:/app/ld4p/qa_server-webapp/tmp
       - gems:/usr/local/bundle
