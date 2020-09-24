@@ -7,7 +7,6 @@ services:
   app: &app
     build:
       context: .
-#      target: ld4p/qa_server
     image: ld4p/qa_server:v1
     container_name: ld4p-qa_server-app
     stdin_open: true
@@ -15,18 +14,9 @@ services:
     user: root
     env_file:
       - .env
-#    command: ["rails", "server", "--pid=/tmp/server.pid"]
-#    environment:
-#      - POSTGRES_HOST=pg
-#      - POSTGRES_USER=db_user
-#      - POSTGRES_PASSWORD=Eureka
-#      - RAILS_ENV
-#      args:
-#        RAILS_ENV: development
-#        BUNDLE_WITHOUT: test
     volumes:
-      - .:/app/ld4p/qa_server-webapp # use for debugging
-#      - app_src:/app/ld4p/qa_server-webapp # use when not debugging
+#      - .:/app/ld4p/qa_server-webapp # use for debugging
+      - app_src:/app/ld4p/qa_server-webapp # use when not debugging
       - ${AUTHORITIES_PATH}:/app/ld4p/qa_server-webapp/config/authorities
       - rails-public:/app/ld4p/qa_server-webapp/public
       - rails-tmp:/app/ld4p/qa_server-webapp/tmp
@@ -35,23 +25,6 @@ services:
       - "3000:3000"
     depends_on:
       - mysql
-#      - postgres
-
-#  db_migrate:
-#    image: ld4p/qa_server:v1
-#    user: root
-#    env_file:
-#      - .env
-#    entrypoint: ["sh", "-c"]
-#    command: db-migrate-seed.sh
-#    depends_on:
-#      - mysql
-#    #      - postgres
-#    volumes:
-#      - .:/app/ld4p/qa_server-webapp # use for debugging
-##      - app_src:/app/ld4p/qa_server-webapp # use when not debugging
-#      - rails-public:/app/ld4p/qa_server-webapp/public
-#      - rails-tmp:/app/ld4p/qa_server-webapp/tmp
 
   mysql:
     image: mariadb
@@ -67,29 +40,9 @@ services:
     volumes:
       - db-mysql-data:/var/lib/mysql/data
 
-#  postgres:
-#    image: postgres:10.6-alpine
-#    restart: always
-#    container_name: ld4p-qa_server-postgres
-#    environment:
-#      - POSTGRES_USER=db_user
-#      - POSTGRES_PASSWORD=Ureka
-#      - POSTGRES_DB=qa_server
-#      - POSTGRES_HOST_AUTH_METHOD=trust
-#    #    healthcheck:
-##      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
-##      interval: 10s
-##      timeout: 5s
-##      retries: 5
-#    ports:
-#      - "5432:5432"
-#    volumes:
-#      - db-postgres-data:/var/lib/postgresql/data
-
 volumes:
+  app_src: # comment out when debugging and using . volume for qa_server-webapp
   db-mysql-data:
-#  db-postgres-data:
   gems:
   rails-public:
   rails-tmp:
-#  app_src:
