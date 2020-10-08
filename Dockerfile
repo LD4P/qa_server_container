@@ -19,14 +19,19 @@ RUN apk add --update --no-cache \
       mariadb-dev \
       imagemagick6-dev imagemagick6-libs
 
-RUN gem install bundler:2.1.4
 
 WORKDIR /app/ld4p/qa_server-webapp
+
+RUN gem install bundler:2.1.4
+
+ENV PATH="/app/ld4p/qa_server-webapp:$PATH"
+ENV RAILS_ROOT="/app/ld4p/qa_server-webapp"
 
 COPY Gemfile Gemfile.lock ./
 RUN bundle install
 
 COPY . .
+RUN bundle exec rake assets:precompile
 
 ENV PATH=./bin:$PATH
 
