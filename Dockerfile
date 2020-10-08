@@ -23,8 +23,13 @@ RUN gem install bundler:2.1.4
 
 WORKDIR /app/ld4p/qa_server-webapp
 
+
+ENV PATH="/app/ld4p/qa_server-webapp:$PATH"
+ENV RAILS_ROOT="/app/ld4p/qa_server-webapp"
+
 COPY Gemfile Gemfile.lock ./
 RUN bundle install
+RUN bundle exec rake assets:precompile
 
 COPY . .
 
