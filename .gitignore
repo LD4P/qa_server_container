@@ -74,3 +74,4 @@ app/assets/images/qa_server/charts/*.png
 .data
 .generators
 .rakeTasks
+*.env
