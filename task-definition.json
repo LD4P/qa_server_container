@@ -121,16 +121,6 @@
           "readOnly": null,
           "containerPath": "/app/ld4p/qa_server-webapp/config/authorities",
           "sourceVolume": "qa-server-authorities"
-        },
-        {
-          "readOnly": null,
-          "containerPath": "/app/ld4p/qa_server-webapp/public",
-          "sourceVolume": "qa-server-rails-public"
-        },
-        {
-          "readOnly": null,
-          "containerPath": "/app/ld4p/qa_server-webapp/tmp",
-          "sourceVolume": "qa-server-rails-tmp"
         }
       ],
       "workingDirectory": null,
@@ -210,38 +200,6 @@
         "rootDirectory": "/"
       },
       "name": "qa-server-authorities",
-      "host": null,
-      "dockerVolumeConfiguration": null
-    },
-    {
-      "fsxWindowsFileServerVolumeConfiguration": null,
-      "efsVolumeConfiguration": {
-        "transitEncryptionPort": null,
-        "fileSystemId": "<efs-filesystem-3>",
-        "authorizationConfig": {
-          "iam": "DISABLED",
-          "accessPointId": "<efs-accesspoint>"
-        },
-        "transitEncryption": "ENABLED",
-        "rootDirectory": "/"
-      },
-      "name": "qa-server-rails-public",
-      "host": null,
-      "dockerVolumeConfiguration": null
-    },
-    {
-      "fsxWindowsFileServerVolumeConfiguration": null,
-      "efsVolumeConfiguration": {
-        "transitEncryptionPort": null,
-        "fileSystemId": "<efs-filesystem>",
-        "authorizationConfig": {
-          "iam": "DISABLED",
-          "accessPointId": "<efs-accesspoint-4>"
-        },
-        "transitEncryption": "ENABLED",
-        "rootDirectory": "/"
-      },
-      "name": "qa-server-rails-tmp",
       "host": null,
       "dockerVolumeConfiguration": null
     }

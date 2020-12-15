@@ -30,10 +30,6 @@ Resources:
           MountPoints: 
             - SourceVolume: qa-server-authorities
               ContainerPath: /app/ld4p/qa_server-webapp/config/authorities
-            - SourceVolume: qa-server-rails-public
-              ContainerPath: /app/ld4p/qa_server-webapp/public
-            - SourceVolume: qa-server-rails-tmp
-              ContainerPath: /app/ld4p/qa_server-webapp/tmp
           PortMappings: 
             HostPort: 3000
             Protocol: tcp
@@ -85,22 +81,6 @@ Resources:
             AuthorizationConfig: 
             - Iam: DISABLED
               AccessPointId: fsap-01817d5defea7264d
-          RootDirectory: "/"
-          TransitEncryption: ENABLED
-        - Name: qa-server-rails-public
-          FilesystemId: fs-402461c2
-          EFSVolumeConfiguration:
-            AuthorizationConfig: 
-            - Iam: DISABLED
-              AccessPointId: fsap-0405d61aa57728cb8
-          RootDirectory: "/"
-          TransitEncryption: ENABLED
-        - Name: qa-server-rails-tmp
-          FilesystemId: fs-402461c2
-          EFSVolumeConfiguration:
-            AuthorizationConfig: 
-            - Iam: DISABLED
-              AccessPointId: fsap-0f5248605d9462afe
           RootDirectory: "/"
           TransitEncryption: ENABLED
 
