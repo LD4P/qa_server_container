@@ -61,4 +61,36 @@ Properties:
     - Tag
   TaskRoleArn: arn:aws:iam::092831676293:role/ecsTaskExecutionRole
   Volumes: 
-    - Volume
+    - Name: db-mysql-data
+      FilesystemId: fs-402461c2
+      EFSVolumeConfiguration:
+        AuthorizationConfig: 
+        - Iam: DISABLED
+          AccessPointId: fsap-0861798cebbd27cbe
+      RootDirectory: "/"
+      TransitEncryption: ENABLED
+    - Name: qa-server-authorities
+      FilesystemId: fs-402461c2
+      EFSVolumeConfiguration:
+        AuthorizationConfig: 
+        - Iam: DISABLED
+          AccessPointId: fsap-01817d5defea7264d
+      RootDirectory: "/"
+      TransitEncryption: ENABLED
+    - Name: qa-server-rails-public
+      FilesystemId: fs-402461c2
+      EFSVolumeConfiguration:
+        AuthorizationConfig: 
+        - Iam: DISABLED
+          AccessPointId: fsap-0405d61aa57728cb8
+      RootDirectory: "/"
+      TransitEncryption: ENABLED
+    - Name: qa-server-rails-tmp
+      FilesystemId: fs-402461c2
+      EFSVolumeConfiguration:
+        AuthorizationConfig: 
+        - Iam: DISABLED
+          AccessPointId: fsap-0f5248605d9462afe
+      RootDirectory: "/"
+      TransitEncryption: ENABLED
+
