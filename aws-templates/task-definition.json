@@ -7,7 +7,7 @@
 # that must be done manually before this file can be used:
 # <taskname> = the name of this task definition
 # <taskversion> = the version number of the task definition
-# <containername. = the name of the qa-server app container in your image repo
+# <containername> = the name of the qa-server app container in your image repo
 # <accountid> = your AWS account number
 # <bucketname> = the S3 bucket containing the environment file
 # <envfile> = the environment file name, must end in .env
