@@ -4,29 +4,29 @@ This app can be installed using Docker to serve as a Questioning Authority (QA) 
 
 ## Setup
 
-### Prerequisite
+### Setup on localhost
+
+#### Prerequisite
 
 * [Docker](https://docs.docker.com/desktop/)
 
-### Installation Instructions
+#### Installation Instructions
 
-#### Get code
+##### Get code
 
 ```
 $ git clone https://github.com/LD4P/qa_server_container.git
 $ cd qa_server_container
 ```
 
-#### Setup environment variables
+##### Setup environment variables
 
 * create a `.env` file by copying `.env.example` and renaming to `.env`
 * edit `.env`
   * update anything marked CHANGEME
   * change other environment variables if needed
   
-#### Setup authority configurations
-
-##### Setup on localhost
+##### Setup authority configurations
 
 * determine a path outside the application that can hold the configurations (e.g. `/Users/_YOUR_USER_/docker/volume/authorities`)
 * edit `.env` and set `AUTHORITIES_PATH` to that path
@@ -39,11 +39,7 @@ There are a number of pre-configured authorities at [LD4P/linked_data_authoritie
 Some of these require a cache of the data.  A few are able to make direct access through the authority provider's API.
 This information is documented at [LD4P/linked_data_authorities](https://github.com/LD4P/linked_data_authorities).
 
-##### Setup on AWS
-
-TBD
-
-### To Start the Server
+#### To Start the Server
 
 Run app with Docker by executing these commands from the root directory of the app
 
@@ -52,17 +48,18 @@ $ docker-compose build
 $ docker-compose up
 ```
 
-### To Stop the Server
+#### To Stop the Server
 
 ```
 $ docker-compose down
 ```
 
-## Supported Authorities
+### Setup on AWS
 
-### Authorities that come with QA
+TBD
 
-All linked data authorities need to be enabled by adding a configuration at the `AUTHORITY_PATH`.
+#### Installation Instructions
+
 
 ## Using the configuration
 
