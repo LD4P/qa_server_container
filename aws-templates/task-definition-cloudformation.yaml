@@ -1,0 +1,141 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  Description: >
+  QA Server Container Template
+  Deploy with
+  aws cloudformation update-stack --stack-name qa-server-cf-container \
+  --template-body file://./task-definition-cloudformation.yaml \
+  --parameters ParameterKey=TaskDefinitionName,ParameterValue=qa-server-cf \
+  ParameterKey=S3BucketName,ParameterValue=ld4l-qa-server \
+  ParameterKey=EnvFileName,ParameterValue=qa-server-container-with-db.env \
+  ParameterKey=ImageLocation,ParameterValue=092831676293.dkr.ecr.us-east-1.amazonaws.com/qa-server/qa-server-app:latest \
+  ParameterKey=VolumeId,ParameterValue=fs-402461c2 \
+  ParameterKey=AuthorityVolumeName,ParameterValue=qa-server-authorities \
+  ParameterKey=AuthorityAccessPointId,ParameterValue=fsap-01817d5defea7264d \
+  ParameterKey=DatabaseVolumeName,ParameterValue=db-mysql-data \
+  ParameterKey=DatabaseAccessPointId,ParameterValue=fsap-0861798cebbd27cbe 
+  
+  
+Parameters:
+  TaskDefinitionName:
+    Type: String
+    Default: 'qa-server-cf'
+    Description: Name of the task definition and the task definition family
+  S3BucketName:
+    Type: String
+    Default: 'ld4l-qa-server'
+    Description: Name of the S3 bucket where environment file resides
+  EnvFileName:
+    Type: String
+    Default: 'qa-server-container-with-db.env'
+    Description: Name of the environment file  
+  ImageLocation:
+    Type: String
+    Default: '092831676293.dkr.ecr.us-east-1.amazonaws.com/qa-server/qa-server-app:latest'
+    Description: Full path to the container image for the qa-server application, including repository URL and tag
+  VolumeId:
+    Type: String
+    Default: ''
+    Description: ID of the volume where the authority files are stored
+  AuthorityVolumeName:
+    Type: String
+    Default: 'qa-server-authorities'
+    Description: Name of the volume where the authority files are stored
+  AuthorityAccessPointId:
+    Type: String
+    Default: ''
+    Description: EFS Access Point ID of the volume where the authority files are stored
+  DatabaseVolumeName:
+    Type: String
+    Default: 'db-mysql-data'
+    Description: Name of the volume where the database is stored
+  DatabaseAccessPointId:
+    Type: String
+    Default: ''
+    Description: EFS Access Point ID of the volume where the database is stored
+Resources:
+# TODO: Add a cluster definition 
+  LogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties: 
+      LogGroupName: !Join ["", ["/ecs/", !Ref TaskDefinitionName]]
+  TaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties: 
+      Family: qa-server-cf
+      ContainerDefinitions: 
+        - Name: !Ref TaskDefinitionName
+          Cpu: 0
+          EnvironmentFiles: 
+            - Type: s3
+#              Value: !Join ["arn:aws:s3:::",  [!Ref S3BucketName, "/", !Ref EnvFileName]]
+              Value: !Join ["", ["arn:aws:s3:::", !Ref S3BucketName, "/", !Ref EnvFileName]]
+#              Value: 'arn:aws:s3:::ld4l-qa-server/qa-server-container-with-db.env'
+          Essential: True
+          Image: !Ref ImageLocation
+          Links: 
+            - qa-mariadb
+          LogConfiguration: 
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Join ["", ["/ecs/", !Ref TaskDefinitionName]]
+              awslogs-region: us-east-1
+              awslogs-stream-prefix: ecs
+          MemoryReservation: 512
+          MountPoints: 
+            - SourceVolume: !Ref AuthorityVolumeName
+              ContainerPath: /app/ld4p/qa_server-webapp/config/authorities
+          PortMappings: 
+            - HostPort: 3000
+              Protocol: tcp
+              ContainerPort: 3000
+        - Name: 'qa-mariadb'
+          Cpu: 0
+          EnvironmentFiles: 
+            - Type: s3
+              Value: !Join ["", ["arn:aws:s3:::", !Ref S3BucketName, "/", !Ref EnvFileName]]
+          Essential: True
+          Image: mariadb:latest
+          LogConfiguration: 
+            LogDriver: awslogs
+            Options:
+              awslogs-group: !Join ["", ["/ecs/", !Ref TaskDefinitionName]]
+              awslogs-region: us-east-1
+              awslogs-stream-prefix: ecs
+          MemoryReservation: 512
+          MountPoints: 
+            - SourceVolume: !Ref DatabaseVolumeName
+              ContainerPath: /var/lib/mysql/data
+          PortMappings: 
+            - HostPort: 3306
+              Protocol: tcp
+              ContainerPort: 3306
+      Cpu: 1024
+      ExecutionRoleArn: arn:aws:iam::092831676293:role/ecsTaskExecutionRole
+      Memory: 1024
+      NetworkMode: bridge
+      RequiresCompatibilities: 
+        - EC2
+#      Tags: 
+#        - Tag
+      TaskRoleArn: arn:aws:iam::092831676293:role/ecsTaskExecutionRole
+      Volumes: 
+      # The volumes below are examples of EFS volumes which are assumed to exist before
+      # this stack is created, and the IDs must be passed as parameters.
+        - Name: !Ref AuthorityVolumeName
+          EFSVolumeConfiguration:
+            FilesystemId: !Ref VolumeId
+            AuthorizationConfig: 
+              Iam: DISABLED
+              AccessPointId: !Ref AuthorityAccessPointId
+            RootDirectory: "/"
+            TransitEncryption: ENABLED
+        - Name: !Ref DatabaseVolumeName
+          EFSVolumeConfiguration:
+            FilesystemId: !Ref VolumeId
+            AuthorizationConfig: 
+              Iam: DISABLED
+              AccessPointId: !Ref DatabaseAccessPointId
+            RootDirectory: "/"
+            TransitEncryption: ENABLED
+

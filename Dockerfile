@@ -28,6 +28,7 @@ ENV PATH="/app/ld4p/qa_server-webapp:$PATH"
 ENV RAILS_ROOT="/app/ld4p/qa_server-webapp"
 
 COPY Gemfile Gemfile.lock ./
+RUN gem update --system
 RUN bundle install
 
 COPY . .

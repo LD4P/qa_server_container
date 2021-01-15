@@ -4,29 +4,27 @@ This app can be installed using Docker to serve as a Questioning Authority (QA) 
 
 ## Setup
 
-### Installation Instructions
+### Prerequisite
 
-* clone this app from github
+* [Docker](https://docs.docker.com/desktop/)
+
+### Installation Instructions
 
 ```
 $ git clone https://github.com/LD4P/qa_server_container.git
-$ cd qa_server_container
-$ docker-compose build
-$ docker-compose up
 ```
 
 ### To Start the Server
 
-* run app with docker
+Run app with Docker
 
 ```
-$ git clone https://github.com/LD4P/qa_server_container.git
 $ cd qa_server_container
 $ docker-compose build
 $ docker-compose up
 ```
 
-* to stop, use
+### To Stop the Server
 
 ```
 $ docker-compose down
