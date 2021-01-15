@@ -1,6 +1,6 @@
 # QA Server Container and Appication Orchistration
 
-This app can be installed using Docker to serve as a Questioning Authority (QA) Server for accessing external authorities.  It is part of a larger architecture supporting linked data authority access.  See [ld4l:linked_data_authorities]() for more information on the full architecture.  From this app, you can send a search query and get back multiple results OR you can fetch a single term. 
+This app can be installed using Docker to serve as a Questioning Authority (QA) Server for accessing external authorities.  It is part of a larger architecture supporting linked data authority access.  See [LD4P/linked_data_authorities](https://github.com/LD4P/linked_data_authorities) for more information on the full architecture.  From this app, you can send a search query and get back multiple results OR you can fetch a single term. 
 
 ## Setup
 
@@ -10,16 +10,44 @@ This app can be installed using Docker to serve as a Questioning Authority (QA) 
 
 ### Installation Instructions
 
+#### Get code
+
 ```
 $ git clone https://github.com/LD4P/qa_server_container.git
+$ cd qa_server_container
 ```
+
+#### Setup environment variables
+
+* create a `.env` file by copying `.env.example` and renaming to `.env`
+* edit `.env`
+  * update anything marked CHANGEME
+  * change other environment variables if needed
+  
+#### Setup authority configurations
+
+##### Setup on localhost
+
+* determine a path outside the application that can hold the configurations (e.g. `/Users/_YOUR_USER_/docker/volume/authorities`)
+* edit `.env` and set `AUTHORITIES_PATH` to that path
+* create `linked_data` subdirectory
+* copy or create configurations for the authorities you wish to make available
+* create `scenarios` subdirectory under `linked_data` to hold validation tests
+* copy or create validations for each authority
+
+There are a number of pre-configured authorities at [LD4P/linked_data_authorities](https://github.com/LD4P/linked_data_authorities).
+Some of these require a cache of the data.  A few are able to make direct access through the authority provider's API.
+This information is documented at [LD4P/linked_data_authorities](https://github.com/LD4P/linked_data_authorities).
+
+##### Setup on AWS
+
+TBD
 
 ### To Start the Server
 
-Run app with Docker
+Run app with Docker by executing these commands from the root directory of the app
 
 ```
-$ cd qa_server_container
 $ docker-compose build
 $ docker-compose up
 ```
@@ -34,11 +62,9 @@ $ docker-compose down
 
 ### Authorities that come with QA
 
-At this time, Agrovoc is the only authority tested with this app.  More coming soon.
+All linked data authorities need to be enabled by adding a configuration at the `AUTHORITY_PATH`.
 
 ## Using the configuration
-
-Add your new configuration to `this_app/config/authorities/linked_data`
 
 TEST QUERY: http://localhost:3000/qa/search/linked_data/_AUTHORITY_NAME__direct?q=your_query&maxRecords=3
 TEST FETCH: http://localhost:3000/qa/show/linked_data/_AUTHORITY_NAME__direct/_ID_OR_URI_
