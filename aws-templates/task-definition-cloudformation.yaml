@@ -5,9 +5,13 @@ Description: >
   Deploy with
   aws cloudformation update-stack --stack-name qa-server-cf-container \
   --template-body file://./task-definition-cloudformation.yaml \
-  --parameters ParameterKey=TaskDefinitionName,ParameterValue=qa-server-cf \
+  --parameters \
+  ParameterKey=AWSAccountId,ParameterValue=092831676293 \ 
+  ParameterKey=AWSVpcId,ParameterValue=vpc-5e5cfd3a \ 
+  ParameterKey=TaskDefinitionName,ParameterValue=qa-server-cf \
   ParameterKey=S3BucketName,ParameterValue=ld4l-qa-server \
   ParameterKey=EnvFileName,ParameterValue=qa-server-container-with-db.env \
+  ParameterKey=DomainName,ParameterValue=qa-server-service.library.cornell.edu \
   ParameterKey=ImageLocation,ParameterValue=092831676293.dkr.ecr.us-east-1.amazonaws.com/qa-server/qa-server-app:latest \
   ParameterKey=VolumeId,ParameterValue=fs-402461c2 \
   ParameterKey=AuthorityVolumeName,ParameterValue=qa-server-authorities \
@@ -17,29 +21,33 @@ Description: >
   
   
 Parameters:
+  AWSAccountId:
+    Type: String
+    Default: ''
+    Description: Your AWS Account ID number
   TaskDefinitionName:
     Type: String
-    Default: 'qa-server-cf'
+    Default: ''
     Description: Name of the task definition and the task definition family
   S3BucketName:
     Type: String
-    Default: 'ld4l-qa-server'
+    Default: ''
     Description: Name of the S3 bucket where environment file resides
   EnvFileName:
     Type: String
-    Default: 'qa-server-container-with-db.env'
+    Default: ''
     Description: Name of the environment file  
   ImageLocation:
     Type: String
-    Default: '092831676293.dkr.ecr.us-east-1.amazonaws.com/qa-server/qa-server-app:latest'
+    Default: ''
     Description: Full path to the container image for the qa-server application, including repository URL and tag
   VolumeId:
     Type: String
     Default: ''
-    Description: ID of the volume where the authority files are stored
+    Description: ID of the volume where the database and authority files are stored
   AuthorityVolumeName:
     Type: String
-    Default: 'qa-server-authorities'
+    Default: ''
     Description: Name of the volume where the authority files are stored
   AuthorityAccessPointId:
     Type: String
@@ -47,12 +55,16 @@ Parameters:
     Description: EFS Access Point ID of the volume where the authority files are stored
   DatabaseVolumeName:
     Type: String
-    Default: 'db-mysql-data'
+    Default: ''
     Description: Name of the volume where the database is stored
   DatabaseAccessPointId:
     Type: String
     Default: ''
     Description: EFS Access Point ID of the volume where the database is stored
+  DomainName:
+    Type: String
+    Default: ''
+    Description: Domain name to use for the public facing service
 Resources:
 # TODO: Add a cluster definition 
   LogGroup:
@@ -62,15 +74,13 @@ Resources:
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties: 
-      Family: qa-server-cf
+      Family: !Ref TaskDefinitionName
       ContainerDefinitions: 
-        - Name: !Ref TaskDefinitionName
+        - Name: 'qa-server-app'
           Cpu: 0
           EnvironmentFiles: 
             - Type: s3
-#              Value: !Join ["arn:aws:s3:::",  [!Ref S3BucketName, "/", !Ref EnvFileName]]
               Value: !Join ["", ["arn:aws:s3:::", !Ref S3BucketName, "/", !Ref EnvFileName]]
-#              Value: 'arn:aws:s3:::ld4l-qa-server/qa-server-container-with-db.env'
           Essential: True
           Image: !Ref ImageLocation
           Links: 
@@ -111,14 +121,16 @@ Resources:
               Protocol: tcp
               ContainerPort: 3306
       Cpu: 1024
-      ExecutionRoleArn: arn:aws:iam::092831676293:role/ecsTaskExecutionRole
+      ExecutionRoleArn: !Join ["", ["arn:aws:iam::", !Ref AWSAccountId, ":role/ecsTaskExecutionRole"]]
+#      ExecutionRoleArn: arn:aws:iam::092831676293:role/ecsTaskExecutionRole
       Memory: 1024
       NetworkMode: bridge
       RequiresCompatibilities: 
         - EC2
 #      Tags: 
 #        - Tag
-      TaskRoleArn: arn:aws:iam::092831676293:role/ecsTaskExecutionRole
+      TaskRoleArn: !Join ["", ["arn:aws:iam::", !Ref AWSAccountId, ":role/ecsTaskExecutionRole"]]
+#      TaskRoleArn: arn:aws:iam::092831676293:role/ecsTaskExecutionRole
       Volumes: 
       # The volumes below are examples of EFS volumes which are assumed to exist before
       # this stack is created, and the IDs must be passed as parameters.
@@ -138,4 +150,126 @@ Resources:
               AccessPointId: !Ref DatabaseAccessPointId
             RootDirectory: "/"
             TransitEncryption: ENABLED
+  ACMCert:
+    Type: AWS::CertificateManager::Certificate
+    Properties:
+      DomainName: !Join ["", ["*.", !Ref DomainName]]
+      SubjectAlternativeNames:
+        - !Ref DomainName
+      ValidationMethod: DNS
+  LoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      IpAddressType: ipv4
+      # LoadBalancerAttributes:
+      #   - LoadBalancerAttribute
+      Name: !Join ["", [!Ref InstanceName, "-lb"]]
+      Scheme: internet-facing
+      SecurityGroups:
+        # sg-9b74a3d2 = Permit TCP 80 and 443 from ANY
+        - sg-9b74a3d2
+
+      # SubnetMappings:
+      #   - String
+      Subnets:
+        # subnet-d7ad4ca1 = cu-lit-Subnet-Public-1
+        - subnet-d7ad4ca1
+        # subnet-83a890da = cu-lit-Subnet-Public-2
+        - subnet-83a890da
+      Tags:
+        - Key: Name
+          Value:
+            Ref: InstanceName
+      Type: application
+  SecurityGroupLB:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: Security Group to attach to the service load balancer
+      GroupName: qa-server-service-group
+      VpcId: !Ref AWSVpcId
+  SecurityGroupCI:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: Security Group to attach to the container instances
+      GroupName: qa-server-instance-group
+      VpcId: !Ref AWSVpcId
+  SecurityGroupEgressCI:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties: 
+      IpProtocol: tcp
+      FromPort: 0
+      ToPort: 65535
+      GroupId: !Ref SecurityGroupCI
+      DestinationSecurityGroupId: !GetAtt SecurityGroupLB.GroupId
+      DestinationSecurityGroupOwnerId: !Ref AWSAccountId
+  SecurityGroupIngressCI:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties: 
+      IpProtocol: tcp
+      FromPort: 0
+      ToPort: 65535
+      GroupId: !Ref SecurityGroupCI
+      SourceSecurityGroupId: !GetAtt SecurityGroupLB.GroupId
+      SourceSecurityGroupOwnerId: !Ref AWSAccountId
+  SecurityGroupEgressLB:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties: 
+      IpProtocol: tcp
+      FromPort: 0
+      ToPort: 65535
+      GroupId: !Ref SecurityGroupLB
+      DestinationSecurityGroupId: !GetAtt SecurityGroupCI.GroupId
+      DestinationSecurityGroupOwnerId: !Ref AWSAccountId
+  SecurityGroupIngressLB:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties: 
+      IpProtocol: tcp
+      FromPort: 0
+      ToPort: 65535
+      GroupId: !Ref SecurityGroupLB
+      SourceSecurityGroupId: !GetAtt SecurityGroupCI.GroupId
+      SourceSecurityGroupOwnerId: !Ref AWSAccountId
+  TargetGroup80:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    Properties:
+      HealthCheckEnabled: true
+      HealthCheckIntervalSeconds: 30
+      HealthCheckPath: /
+      HealthCheckPort: traffic-port
+      HealthCheckProtocol: HTTP
+      HealthCheckTimeoutSeconds: 5
+      HealthyThresholdCount: 5
+      Matcher:
+        HttpCode: 200
+        HttpCode: 302
+      Name: !Join ["", [!Ref InstanceName, "-80"]]
+      Port: 80
+      Protocol: HTTP
+      Targets:
+        - Id: !Ref EC2
+          Port: 80
+      TargetType: instance
+      UnhealthyThresholdCount: 2
+      VpcId: vpc-5e5cfd3a
+  Listener80:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup80
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 80
+      Protocol: "HTTP"
+  Listener443:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    Properties:
+      Certificates:
+        - CertificateArn: !Ref ACMCert
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref TargetGroup80
+      LoadBalancerArn: !Ref LoadBalancer
+      Port: 443
+      Protocol: "HTTPS"
+      SslPolicy: "ELBSecurityPolicy-2016-08"
 
