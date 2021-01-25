@@ -1,13 +1,9 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >
-  Description: >
-  QA Server Container Template
-  Deploy with
-  aws cloudformation update-stack --stack-name qa-server-cf-container \
+  aws cloudformation create-stack --stack-name qa-server-cf-container-with-lb \
   --template-body file://./task-definition-cloudformation.yaml \
-  --parameters \
-  ParameterKey=AWSAccountId,ParameterValue=092831676293 \ 
-  ParameterKey=AWSVpcId,ParameterValue=vpc-5e5cfd3a \ 
+  --parameters ParameterKey=AWSAccountId,ParameterValue=092831676293 \
+  ParameterKey=AWSVpcId,ParameterValue=vpc-5e5cfd3a \
   ParameterKey=TaskDefinitionName,ParameterValue=qa-server-cf \
   ParameterKey=S3BucketName,ParameterValue=ld4l-qa-server \
   ParameterKey=EnvFileName,ParameterValue=qa-server-container-with-db.env \
@@ -17,14 +13,16 @@ Description: >
   ParameterKey=AuthorityVolumeName,ParameterValue=qa-server-authorities \
   ParameterKey=AuthorityAccessPointId,ParameterValue=fsap-01817d5defea7264d \
   ParameterKey=DatabaseVolumeName,ParameterValue=db-mysql-data \
-  ParameterKey=DatabaseAccessPointId,ParameterValue=fsap-0861798cebbd27cbe 
-  
-  
+  ParameterKey=DatabaseAccessPointId,ParameterValue=fsap-0861798cebbd27cbe
 Parameters:
   AWSAccountId:
     Type: String
     Default: ''
     Description: Your AWS Account ID number
+  AWSVpcId:
+    Type: String
+    Default: ''
+    Description: Your AWS VPC ID
   TaskDefinitionName:
     Type: String
     Default: ''
@@ -70,7 +68,7 @@ Resources:
   LogGroup:
     Type: AWS::Logs::LogGroup
     Properties: 
-      LogGroupName: !Join ["", ["/ecs/", !Ref TaskDefinitionName]]
+      LogGroupName: !Join ["", ["/ecs/", !Ref TaskDefinitionName, "-lb"]]
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties: 
@@ -88,7 +86,7 @@ Resources:
           LogConfiguration: 
             LogDriver: awslogs
             Options:
-              awslogs-group: !Join ["", ["/ecs/", !Ref TaskDefinitionName]]
+              awslogs-group: !Join ["", ["/ecs/", !Ref TaskDefinitionName, "-lb"]]
               awslogs-region: us-east-1
               awslogs-stream-prefix: ecs
           MemoryReservation: 512
@@ -109,7 +107,7 @@ Resources:
           LogConfiguration: 
             LogDriver: awslogs
             Options:
-              awslogs-group: !Join ["", ["/ecs/", !Ref TaskDefinitionName]]
+              awslogs-group: !Join ["", ["/ecs/", !Ref TaskDefinitionName, "-lb"]]
               awslogs-region: us-east-1
               awslogs-stream-prefix: ecs
           MemoryReservation: 512
@@ -163,7 +161,7 @@ Resources:
       IpAddressType: ipv4
       # LoadBalancerAttributes:
       #   - LoadBalancerAttribute
-      Name: !Join ["", [!Ref InstanceName, "-lb"]]
+      Name: !Join ["", [!Ref TaskDefinitionName, "-lb"]]
       Scheme: internet-facing
       SecurityGroups:
         # sg-9b74a3d2 = Permit TCP 80 and 443 from ANY
@@ -179,7 +177,7 @@ Resources:
       Tags:
         - Key: Name
           Value:
-            Ref: InstanceName
+            Ref: TaskDefinitionName
       Type: application
   SecurityGroupLB:
     Type: AWS::EC2::SecurityGroup
@@ -201,7 +199,6 @@ Resources:
       ToPort: 65535
       GroupId: !Ref SecurityGroupCI
       DestinationSecurityGroupId: !GetAtt SecurityGroupLB.GroupId
-      DestinationSecurityGroupOwnerId: !Ref AWSAccountId
   SecurityGroupIngressCI:
     Type: AWS::EC2::SecurityGroupIngress
     Properties: 
@@ -219,7 +216,6 @@ Resources:
       ToPort: 65535
       GroupId: !Ref SecurityGroupLB
       DestinationSecurityGroupId: !GetAtt SecurityGroupCI.GroupId
-      DestinationSecurityGroupOwnerId: !Ref AWSAccountId
   SecurityGroupIngressLB:
     Type: AWS::EC2::SecurityGroupIngress
     Properties: 
@@ -242,13 +238,9 @@ Resources:
       Matcher:
         HttpCode: 200
         HttpCode: 302
-      Name: !Join ["", [!Ref InstanceName, "-80"]]
+      Name: !Join ["", [!Ref TaskDefinitionName, "-80"]]
       Port: 80
       Protocol: HTTP
-      Targets:
-        - Id: !Ref EC2
-          Port: 80
-      TargetType: instance
       UnhealthyThresholdCount: 2
       VpcId: vpc-5e5cfd3a
   Listener80:
