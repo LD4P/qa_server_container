@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Description: >
-  1. Make a copy of parameters.env.example and rename it to parameters.env, then populate it with the values appropriate to your environment. CloudFormation will read those values from the file if you pass it on the command line when you create or update the stack.
+  1. Make a copy of parameters.env.example and rename it to parameters.env, then populate it with the values appropriate to your environment. CloudFormation will read those values from the file if you pass it on the command line when you create or update the stack. See the parameter definitions below for full instructions.
   2. Navigate to the directory that contains these files and run the following aws cli command:
   aws cloudformation create-stack --stack-name qa-server-cf-container-with-lb \
   --template-body file://./aws-cloudformation.yaml \
@@ -10,43 +10,43 @@ Parameters:
   AWSAccountId:
     Type: String
     Default: ''
-    Description: Your AWS Account ID number
+    Description: Your AWS Account ID number. Usually a 12-digit number. Required.
   AWSVpcId:
     Type: String
     Default: ''
-    Description: Your AWS VPC ID
+    Description: Your AWS VPC ID. It should look like vpc-4d4bec2b. Required for load balancer configuration.
   TaskDefinitionName:
     Type: String
     Default: ''
-    Description: Name of the task definition and the task definition family
+    Description: Name of the task definition and the task definition family. This can be anything you like, but should not contain spaces. It is reused in naming the load balancer and the log groups.
   S3BucketName:
     Type: String
     Default: ''
-    Description: Name of the S3 bucket where environment file resides
+    Description: Name of the S3 bucket where the environment file resides. This must exist for the application to launch.
   EnvFileName:
     Type: String
     Default: ''
-    Description: Name of the environment file  
+    Description: Name of the environment file. This must exist for the application to launch, and it must be populated with values appropriate to your environment.
   ImageLocation:
     Type: String
     Default: ''
-    Description: Full path to the container image for the qa-server application, including repository URL and tag
+    Description: Full path to the container image for the qa-server application, including repository URL and tag. This must be a repo within Amazon ECR, or a publicly accessible repo. Private repo authentication is not available at this time.
   VolumeId:
     Type: String
     Default: ''
-    Description: ID of the volume where the database and authority files are stored
-  AuthorityVolumeName:
-    Type: String
-    Default: ''
-    Description: Name of the volume where the authority files are stored
+    Description: ID of the volume where the database and authority files are stored. This is an EFS volume that must exist for the application to launch. The EFS volume must contain two access points that 
+#  AuthorityVolumeName:
+#    Type: String
+#    Default: ''
+#    Description: Name of the volume where the authority files are stored
   AuthorityAccessPointId:
     Type: String
     Default: ''
     Description: EFS Access Point ID of the volume where the authority files are stored
-  DatabaseVolumeName:
-    Type: String
-    Default: ''
-    Description: Name of the volume where the database is stored
+#  DatabaseVolumeName:
+#    Type: String
+#    Default: ''
+#    Description: Name of the volume where the database is stored
   DatabaseAccessPointId:
     Type: String
     Default: ''
@@ -56,7 +56,7 @@ Parameters:
     Default: ''
     Description: Domain name to use for the public facing service
 Resources:
-# TODO: Add a cluster definition 
+# TODO: Add a cluster definition and a service definition
   LogGroup:
     Type: AWS::Logs::LogGroup
     Properties: 
@@ -83,7 +83,8 @@ Resources:
               awslogs-stream-prefix: ecs
           MemoryReservation: 512
           MountPoints: 
-            - SourceVolume: !Ref AuthorityVolumeName
+            - SourceVolume: qa-server-authorities
+#            - SourceVolume: !Ref AuthorityVolumeName
               ContainerPath: /app/ld4p/qa_server-webapp/config/authorities
           PortMappings: 
             - HostPort: 3000
@@ -104,7 +105,8 @@ Resources:
               awslogs-stream-prefix: ecs
           MemoryReservation: 512
           MountPoints: 
-            - SourceVolume: !Ref DatabaseVolumeName
+            - SourceVolume: db-mysql-data
+#            - SourceVolume: !Ref DatabaseVolumeName
               ContainerPath: /var/lib/mysql/data
           PortMappings: 
             - HostPort: 3306
@@ -112,19 +114,14 @@ Resources:
               ContainerPort: 3306
       Cpu: 1024
       ExecutionRoleArn: !Join ["", ["arn:aws:iam::", !Ref AWSAccountId, ":role/ecsTaskExecutionRole"]]
-#      ExecutionRoleArn: arn:aws:iam::092831676293:role/ecsTaskExecutionRole
       Memory: 1024
       NetworkMode: bridge
       RequiresCompatibilities: 
         - EC2
-#      Tags: 
-#        - Tag
       TaskRoleArn: !Join ["", ["arn:aws:iam::", !Ref AWSAccountId, ":role/ecsTaskExecutionRole"]]
-#      TaskRoleArn: arn:aws:iam::092831676293:role/ecsTaskExecutionRole
       Volumes: 
-      # The volumes below are examples of EFS volumes which are assumed to exist before
-      # this stack is created, and the IDs must be passed as parameters.
-        - Name: !Ref AuthorityVolumeName
+        - Name: qa-server-authorities
+#        - Name: !Ref AuthorityVolumeName
           EFSVolumeConfiguration:
             FilesystemId: !Ref VolumeId
             AuthorizationConfig: 
@@ -132,7 +129,8 @@ Resources:
               AccessPointId: !Ref AuthorityAccessPointId
             RootDirectory: "/"
             TransitEncryption: ENABLED
-        - Name: !Ref DatabaseVolumeName
+        - Name: db-mysql-data
+#        - Name: !Ref DatabaseVolumeName
           EFSVolumeConfiguration:
             FilesystemId: !Ref VolumeId
             AuthorizationConfig: 
