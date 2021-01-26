@@ -2,18 +2,7 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: >
   aws cloudformation create-stack --stack-name qa-server-cf-container-with-lb \
   --template-body file://./task-definition-cloudformation.yaml \
-  --parameters ParameterKey=AWSAccountId,ParameterValue=092831676293 \
-  ParameterKey=AWSVpcId,ParameterValue=vpc-5e5cfd3a \
-  ParameterKey=TaskDefinitionName,ParameterValue=qa-server-cf \
-  ParameterKey=S3BucketName,ParameterValue=ld4l-qa-server \
-  ParameterKey=EnvFileName,ParameterValue=qa-server-container-with-db.env \
-  ParameterKey=DomainName,ParameterValue=qa-server-service.library.cornell.edu \
-  ParameterKey=ImageLocation,ParameterValue=092831676293.dkr.ecr.us-east-1.amazonaws.com/qa-server/qa-server-app:latest \
-  ParameterKey=VolumeId,ParameterValue=fs-402461c2 \
-  ParameterKey=AuthorityVolumeName,ParameterValue=qa-server-authorities \
-  ParameterKey=AuthorityAccessPointId,ParameterValue=fsap-01817d5defea7264d \
-  ParameterKey=DatabaseVolumeName,ParameterValue=db-mysql-data \
-  ParameterKey=DatabaseAccessPointId,ParameterValue=fsap-0861798cebbd27cbe
+  --parameters file://./parameters.env
 Parameters:
   AWSAccountId:
     Type: String
