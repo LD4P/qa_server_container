@@ -126,6 +126,29 @@ Resources:
               AccessPointId: !Ref DatabaseAccessPointId
             RootDirectory: "/"
             TransitEncryption: ENABLED
+  Service:
+    Type: AWS::ECS::Service
+    Properties: 
+      Cluster: "qa-server"
+      DeploymentConfiguration: 
+        MaximumPercent: 200
+        MinimumHealthyPercent: 100
+      DesiredCount: 2
+      EnableECSManagedTags: true
+      HealthCheckGracePeriodSeconds: 0
+      LaunchType: "EC2"
+      LoadBalancers: 
+        - ContainerName: "qa-server-app"
+          ContainerPort: 3000
+          TargetGroupArn: !Ref TargetGroup3000
+      PlacementStrategies: 
+        - Field: "attribute:ecs.availability-zone"
+          Type: "spread"
+        - Field: "instanceId"
+          Type: "spread"
+      SchedulingStrategy: "REPLICA"
+      ServiceName: "qa-server-service-2"
+      TaskDefinition: !Ref TaskDefinitionName
   ACMCert:
     Type: AWS::CertificateManager::Certificate
     Properties:
@@ -140,9 +163,10 @@ Resources:
       Name: !Join ["", [!Ref TaskDefinitionName, "-lb"]]
       Scheme: internet-facing
       SecurityGroups:
-# TODO: create a new security group opening 80/443 to the world and replace our pre-existing one
+# TODO: create a new security group within this template, opening 80/443 to the world and replace our pre-existing one
         # sg-9b74a3d2 = Permit TCP 80 and 443 from ANY
         - sg-9b74a3d2
+        - !Ref SecurityGroupLB
 # Also: what about the subnet mappings? Can we pull them from the VPC ID?
       Subnets:
         # subnet-d7ad4ca1 = cu-lit-Subnet-Public-1
@@ -160,6 +184,8 @@ Resources:
       GroupDescription: Security Group to attach to the service load balancer
       GroupName: qa-server-service-group
       VpcId: !Ref AWSVpcId
+# TODO: this next SG must be attached to the EC2s to make it work, so we may need to
+# go ahead and create the instances and the cluster
   SecurityGroupCI:
     Type: AWS::EC2::SecurityGroup
     Properties: 
@@ -200,7 +226,7 @@ Resources:
       GroupId: !Ref SecurityGroupLB
       SourceSecurityGroupId: !GetAtt SecurityGroupCI.GroupId
       SourceSecurityGroupOwnerId: !Ref AWSAccountId
-  TargetGroup80:
+  TargetGroup3000:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       HealthCheckEnabled: true
@@ -212,9 +238,8 @@ Resources:
       HealthyThresholdCount: 5
       Matcher:
         HttpCode: 200
-        HttpCode: 302
-      Name: !Join ["", [!Ref TaskDefinitionName, "-80"]]
-      Port: 80
+      Name: !Join ["", [!Ref TaskDefinitionName, "-3000"]]
+      Port: 3000
       Protocol: HTTP
       UnhealthyThresholdCount: 2
       VpcId: vpc-5e5cfd3a
@@ -223,7 +248,7 @@ Resources:
     Properties:
       DefaultActions:
         - Type: forward
-          TargetGroupArn: !Ref TargetGroup80
+          TargetGroupArn: !Ref TargetGroup3000
       LoadBalancerArn: !Ref LoadBalancer
       Port: 80
       Protocol: "HTTP"
@@ -234,7 +259,7 @@ Resources:
         - CertificateArn: !Ref ACMCert
       DefaultActions:
         - Type: forward
-          TargetGroupArn: !Ref TargetGroup80
+          TargetGroupArn: !Ref TargetGroup3000
       LoadBalancerArn: !Ref LoadBalancer
       Port: 443
       Protocol: "HTTPS"
