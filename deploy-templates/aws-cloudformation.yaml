@@ -126,6 +126,35 @@ Resources:
               AccessPointId: !Ref DatabaseAccessPointId
             RootDirectory: "/"
             TransitEncryption: ENABLED
+##########
+# Now we're getting into creating a brand new cluster. This requires creating:
+#   a launch configuration
+#   an auto scaling group that uses the launch C
+#   a capacity provider that uses the ASG
+#   a cluster that uses the CP
+# So, this will expand the template greatly. It might be better to provide all of that
+# as a separate template, with instructions to spin it up once and then pass the name
+# to the service as a parameter, and grab the instance IDs to pass to the ServiceGroupCIs.
+#  EcsCluster:
+#    Type: AWS::ECS::Cluster
+#    Properties: 
+#      CapacityProviders: 
+#        - String
+#      ClusterName: String
+#      ClusterSettings: 
+#        - ClusterSettings
+#      DefaultCapacityProviderStrategy: 
+#        - CapacityProviderStrategyItem
+#  EcsCapacityProvider:
+#    Type: AWS::ECS::CapacityProvider
+#    Properties: 
+#      AutoScalingGroupProvider: 
+#        - AutoScalingGroupArn: String
+#          ManagedScaling: 
+#            ManagedScaling
+#          ManagedTerminationProtection: String
+#      Name: qa-server-capacity-provider
+##########
   Service:
     Type: AWS::ECS::Service
     Properties: 
