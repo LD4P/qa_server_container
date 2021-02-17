@@ -2,9 +2,9 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: >
   1. Make a copy of parameters.env.example and rename it to parameters.env, then populate it with the values appropriate to your environment. CloudFormation will read those values from the file if you pass it on the command line when you create or update the stack. See the parameter definitions below for full instructions.
   2. Navigate to the directory that contains these files and run the following aws cli command:
-  aws cloudformation create-stack --stack-name qa-server-cf-container-with-lb \
+  aws cloudformation create-stack --stack-name qa-server-with-cluster \
   --template-body file://./aws-cloudformation.yaml \
-  --parameters file://./parameters.env
+  --parameters file://./parameters.env --capabilities CAPABILITY_NAMED_IAM
   3. You will need to validate the ACM certificate after the stack has been created, by creating the DNS record that will appear in the CloudFormation and ACM consoles.
 Parameters:
   AWSAccountId:
@@ -15,6 +15,9 @@ Parameters:
     Type: String
     Default: ''
     Description: Your AWS VPC ID. It should look like vpc-4d4bec2b. Required for load balancer configuration.
+  SubnetId:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Select at two subnets in your selected VPC. The values must be separated by commas.
   TaskDefinitionName:
     Type: String
     Default: ''
@@ -47,12 +50,32 @@ Parameters:
     Type: String
     Default: ''
     Description: Domain name to use for the public facing service. This is only used to provision the ACM certificate for the load balancer to serve secure connections. If this is not desired, the certificate resource can be removed from this template, along with the load balancer listener for port 443 that requires the certificate.
+  InstanceType:
+    Description: EC2 instance type for the cluster. This is recommended to be a type with at least 2 CPUs and 8 GiB of RAM, but you can change it here if you need to.
+    Type: String
+    Default: m5.large
+Mappings:
+  AWSRegionToAMI:
+    Description: This list of ECS-optimized AMIs will change over time and will need to be maintained. You can get the most recent AMI for your current region with the command `aws ssm get-parameters --names /aws/service/ecs/optimized-ami/amazon-linux-2/recommended`. If your region is known and does not change, the others can be ignored or removed safely.
+    us-east-1:
+      AMIID: ami-08a29dcf20b8fea61
+    us-east-2:
+      AMIID: ami-0a9e12068cb98a01d
+    us-west-1:
+      AMIID: ami-0fa6c8d131a220017
+    us-west-2:
+      AMIID: ami-078c97cf1cefd1b38
+    eu-west-1:
+      AMIID: ami-0c9ef930279337028
+    eu-central-1:
+      AMIID: ami-065c1e34da68f2b02
+    ap-northeast-1:
+      AMIID: ami-02265963d1614d04d
+    ap-southeast-1:
+      AMIID: ami-0b68661b29b9e058c
+    ap-southeast-2:
+      AMIID: ami-00e4b147599c13588
 Resources:
-# TODO: Add a cluster definition and a service definition
-  LogGroup:
-    Type: AWS::Logs::LogGroup
-    Properties: 
-      LogGroupName: !Join ["", ["/ecs/", !Ref TaskDefinitionName, "-lb"]]
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
     Properties: 
@@ -70,7 +93,7 @@ Resources:
           LogConfiguration: 
             LogDriver: awslogs
             Options:
-              awslogs-group: !Join ["", ["/ecs/", !Ref TaskDefinitionName, "-lb"]]
+              awslogs-group: !Join ["", ["/ecs/", !Ref AWS::StackName, "-lb"]]
               awslogs-region: us-east-1
               awslogs-stream-prefix: ecs
           MemoryReservation: 512
@@ -91,7 +114,7 @@ Resources:
           LogConfiguration: 
             LogDriver: awslogs
             Options:
-              awslogs-group: !Join ["", ["/ecs/", !Ref TaskDefinitionName, "-lb"]]
+              awslogs-group: !Join ["", ["/ecs/", !Ref AWS::StackName, "-lb"]]
               awslogs-region: us-east-1
               awslogs-stream-prefix: ecs
           MemoryReservation: 512
@@ -103,12 +126,15 @@ Resources:
               Protocol: tcp
               ContainerPort: 3306
       Cpu: 1024
-      ExecutionRoleArn: !Join ["", ["arn:aws:iam::", !Ref AWSAccountId, ":role/ecsTaskExecutionRole"]]
+# We will want to create this role for the user, and we could
+# use this to wire up the S3 bucket access piece by creating this role.
+# Is is possible to create the bucket as well?
+      ExecutionRoleArn: !GetAtt TaskRole.Arn
       Memory: 1024
       NetworkMode: bridge
       RequiresCompatibilities: 
         - EC2
-      TaskRoleArn: !Join ["", ["arn:aws:iam::", !Ref AWSAccountId, ":role/ecsTaskExecutionRole"]]
+      TaskRoleArn: !GetAtt TaskRole.Arn
       Volumes: 
         - Name: qa-server-authorities
           EFSVolumeConfiguration:
@@ -132,33 +158,17 @@ Resources:
 #   an auto scaling group that uses the launch C
 #   a capacity provider that uses the ASG
 #   a cluster that uses the CP
-# So, this will expand the template greatly. It might be better to provide all of that
-# as a separate template, with instructions to spin it up once and then pass the name
-# to the service as a parameter, and grab the instance IDs to pass to the ServiceGroupCIs.
-#  EcsCluster:
-#    Type: AWS::ECS::Cluster
-#    Properties: 
-#      CapacityProviders: 
-#        - String
-#      ClusterName: String
-#      ClusterSettings: 
-#        - ClusterSettings
-#      DefaultCapacityProviderStrategy: 
-#        - CapacityProviderStrategyItem
-#  EcsCapacityProvider:
-#    Type: AWS::ECS::CapacityProvider
-#    Properties: 
-#      AutoScalingGroupProvider: 
-#        - AutoScalingGroupArn: String
-#          ManagedScaling: 
-#            ManagedScaling
-#          ManagedTerminationProtection: String
-#      Name: qa-server-capacity-provider
-##########
+  EcsCluster:
+    Type: AWS::ECS::Cluster
+    Properties: 
+      ClusterName: qa-server-cluster
   Service:
     Type: AWS::ECS::Service
+    DependsOn: 
+      - Listener443
+      - Listener80
     Properties: 
-      Cluster: "qa-server"
+      Cluster: "qa-server-cluster"
       DeploymentConfiguration: 
         MaximumPercent: 200
         MinimumHealthyPercent: 100
@@ -189,37 +199,44 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::LoadBalancer
     Properties:
       IpAddressType: ipv4
-      Name: !Join ["", [!Ref TaskDefinitionName, "-lb"]]
+      Name: !Join ["", [!Ref AWS::StackName, "-lb"]]
       Scheme: internet-facing
       SecurityGroups:
-# TODO: create a new security group within this template, opening 80/443 to the world and replace our pre-existing one
-        # sg-9b74a3d2 = Permit TCP 80 and 443 from ANY
-        - sg-9b74a3d2
         - !Ref SecurityGroupLB
-# Also: what about the subnet mappings? Can we pull them from the VPC ID?
-      Subnets:
-        # subnet-d7ad4ca1 = cu-lit-Subnet-Public-1
-        - subnet-d7ad4ca1
-        # subnet-83a890da = cu-lit-Subnet-Public-2
-        - subnet-83a890da
+      Subnets: !Ref SubnetId
       Tags:
         - Key: Name
           Value:
-            Ref: TaskDefinitionName
+            Ref: AWS::StackName
       Type: application
   SecurityGroupLB:
     Type: AWS::EC2::SecurityGroup
     Properties: 
       GroupDescription: Security Group to attach to the service load balancer
-      GroupName: qa-server-service-group
+      GroupName: !Join ["", [!Ref AWS::StackName, "-qa-server-service-group"]]
       VpcId: !Ref AWSVpcId
-# TODO: this next SG must be attached to the EC2s to make it work, so we may need to
-# go ahead and create the instances and the cluster
+  SecurityGroupHTTPingress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'SecurityGroupLB'
+      IpProtocol: tcp
+      FromPort: '80'
+      ToPort: '80'
+      CidrIp: 0.0.0.0/0
+  SecurityGroupHTTPSingress:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref 'SecurityGroupLB'
+      IpProtocol: tcp
+      FromPort: '443'
+      ToPort: '443'
+      CidrIp: 0.0.0.0/0
   SecurityGroupCI:
     Type: AWS::EC2::SecurityGroup
     Properties: 
       GroupDescription: Security Group to attach to the container instances
-      GroupName: qa-server-instance-group
+      GroupName: 
+      GroupName: !Join ["", [!Ref AWS::StackName, "-qa-server-instance-group"]]
       VpcId: !Ref AWSVpcId
   SecurityGroupEgressCI:
     Type: AWS::EC2::SecurityGroupEgress
@@ -255,8 +272,25 @@ Resources:
       GroupId: !Ref SecurityGroupLB
       SourceSecurityGroupId: !GetAtt SecurityGroupCI.GroupId
       SourceSecurityGroupOwnerId: !Ref AWSAccountId
+  SecurityGroup3000inbound:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref SecurityGroupCI
+      IpProtocol: tcp
+      FromPort: '3000'
+      ToPort: '3000'
+      CidrIp: 0.0.0.0/0
+  SecurityGroupEgress:
+    Type: AWS::EC2::SecurityGroupEgress
+    Properties:
+      GroupId: !Ref SecurityGroupCI
+      IpProtocol: -1
+      FromPort: -1
+      ToPort: -1
+      CidrIp: 0.0.0.0/0
   TargetGroup3000:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
+    DependsOn: LoadBalancer
     Properties:
       HealthCheckEnabled: true
       HealthCheckIntervalSeconds: 30
@@ -271,7 +305,7 @@ Resources:
       Port: 3000
       Protocol: HTTP
       UnhealthyThresholdCount: 2
-      VpcId: vpc-5e5cfd3a
+      VpcId: !Ref AWSVpcId
   Listener80:
     Type: 'AWS::ElasticLoadBalancingV2::Listener'
     Properties:
@@ -283,6 +317,7 @@ Resources:
       Protocol: "HTTP"
   Listener443:
     Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    DependsOn: ECSServiceRole
     Properties:
       Certificates:
         - CertificateArn: !Ref ACMCert
@@ -293,4 +328,138 @@ Resources:
       Port: 443
       Protocol: "HTTPS"
       SslPolicy: "ELBSecurityPolicy-2016-08"
-
+  ECSAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    Properties:
+      VPCZoneIdentifier: !Ref 'SubnetId'
+      LaunchConfigurationName: !Ref 'ContainerInstances'
+      MinSize: '1'
+      MaxSize: '2'
+      DesiredCapacity: '2'
+    CreationPolicy:
+      ResourceSignal:
+        Timeout: PT15M
+    UpdatePolicy:
+      AutoScalingReplacingUpdate:
+        WillReplace: 'true'
+  ContainerInstances:
+    Type: AWS::AutoScaling::LaunchConfiguration
+    Properties:
+      ImageId: !FindInMap [AWSRegionToAMI, !Ref 'AWS::Region', AMIID]
+      SecurityGroups: [!Ref 'SecurityGroupCI', !Ref 'SecurityGroupLB']
+      InstanceType: !Ref 'InstanceType'
+      IamInstanceProfile: !Ref 'EC2InstanceProfile'
+      KeyName: 'cul-admin'
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash -xe
+          echo ECS_CLUSTER=${EcsCluster} >> /etc/ecs/ecs.config;echo ECS_BACKEND_HOST= >> /etc/ecs/ecs.config
+          sudo yum install -y aws-cfn-bootstrap
+          /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource ECSAutoScalingGroup --region ${AWS::Region}
+  EC2Role:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [ec2.amazonaws.com]
+          Action: ['sts:AssumeRole']
+      Policies:
+      - PolicyName: {"Fn::Join": ["", [{"Ref": "AWS::Region"}, "-qa-ecs-service-role-policy"]]}
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action: ['ec2:DescribeTags','ecs:CreateCluster',
+              'ecs:DeregisterContainerInstance', 'ecs:DiscoverPollEndpoint',
+              'ecs:Poll', 'ecs:RegisterContainerInstance', 'ecs:StartTelemetrySession',
+              'ecs:UpdateContainerInstancesState', 'ecs:Submit*', 'ecr:GetAuthorizationToken',
+              'ecr:BatchCheckLayerAvailability', 'ecr:GetDownloadUrlForLayer',
+              'ecr:BatchGetImage', 'logs:CreateLogStream', 'logs:PutLogEvents']
+            Resource: '*'
+#  If you would rather use the AWS managed policy than the above custom policy, use this:
+#      ManagedPolicyArns:
+#        - 'arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role'
+  AutoscalingRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [application-autoscaling.amazonaws.com]
+          Action: ['sts:AssumeRole']
+      Path: /
+      Policies:
+      - PolicyName: {"Fn::Join": ["", [{"Ref": "AWS::Region"}, "-qa-service-autoscaling-role-policy"]]}
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action: ['application-autoscaling:*', 'cloudwatch:DescribeAlarms',
+              'cloudwatch:PutMetricAlarm', 'cloudwatch:DeleteAlarms',
+              'ecs:DescribeServices', 'ecs:UpdateService']
+            Resource: '*'
+  TaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: ['ecs-tasks.amazonaws.com','ecs.amazonaws.com']
+          Action: ['sts:AssumeRole']
+      Path: /
+      Policies:
+      - PolicyName: {"Fn::Join": ["", [{"Ref": "AWS::Region"}, "-qa-service-task-role-policy"]]}
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action: ['ecr:GetAuthorizationToken', 'ecr:BatchCheckLayerAvailability',
+              'ecr:GetDownloadUrlForLayer', 'ecr:BatchGetImage', 'logs:CreateLogStream',
+              'logs:PutLogEvents']
+            Resource: '*'
+      - PolicyName: {"Fn::Join": ["", [{"Ref": "AWS::Region"}, "-qa-service-bucket-policy"]]}
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action: ['s3:GetObject']
+            Resource: {"Fn::Join": ["", ["arn:aws:s3:::", {"Ref": "S3BucketName"}, "/*"]]}
+          - Effect: Allow
+            Action: ['s3:GetBucketLocation']
+            Resource: {"Fn::Join": ["", ["arn:aws:s3:::", {"Ref": "S3BucketName"}, ""]]}
+  ECSServiceRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [ecs.amazonaws.com]
+          Action: ['sts:AssumeRole']
+      Path: /
+      Policies:
+      - PolicyName: {"Fn::Join": ["", [{"Ref": "AWS::Region"}, "-qa-service-ecs-service-policy"]]}
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action: ['elasticloadbalancing:DeregisterInstancesFromLoadBalancer', 
+              'elasticloadbalancing:DeregisterTargets', 'elasticloadbalancing:Describe*', 
+              'elasticloadbalancing:RegisterInstancesWithLoadBalancer',
+              'elasticloadbalancing:RegisterTargets', 'ec2:Describe*', 
+              'ec2:AuthorizeSecurityGroupIngress']
+            Resource: '*'
+  EC2InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: /
+      Roles: [!Ref 'EC2Role']
+Outputs:
+  Service:
+    Value: !Ref 'Service'
+  Cluster:
+    Value: !Ref 'EcsCluster'
+  LoadBalancer:
+    Description: Your Load Balancer's URL
+    Value: !Join ['', [!GetAtt [LoadBalancer, DNSName]]]
+  TaskDefinition:
+    Value: !Ref 'TaskDefinition'
