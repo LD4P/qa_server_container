@@ -158,6 +158,11 @@ Resources:
 #   an auto scaling group that uses the launch C
 #   a capacity provider that uses the ASG
 #   a cluster that uses the CP
+  CloudwatchLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties: 
+      LogGroupName:  !Join ["", ["/ecs/", !Ref AWS::StackName, "-lb"]]
+      RetentionInDays: 7
   EcsCluster:
     Type: AWS::ECS::Cluster
     Properties: 
