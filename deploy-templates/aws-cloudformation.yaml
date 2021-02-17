@@ -7,10 +7,6 @@ Description: >
   --parameters file://./parameters.env --capabilities CAPABILITY_NAMED_IAM
   3. You will need to validate the ACM certificate after the stack has been created, by creating the DNS record that will appear in the CloudFormation and ACM consoles.
 Parameters:
-  AWSAccountId:
-    Type: String
-    Default: ''
-    Description: Your AWS Account ID number. Usually a 12-digit number. Required.
   AWSVpcId:
     Type: String
     Default: ''
@@ -259,7 +255,6 @@ Resources:
       ToPort: 65535
       GroupId: !Ref SecurityGroupCI
       SourceSecurityGroupId: !GetAtt SecurityGroupLB.GroupId
-      SourceSecurityGroupOwnerId: !Ref AWSAccountId
   SecurityGroupEgressLB:
     Type: AWS::EC2::SecurityGroupEgress
     Properties: 
@@ -276,7 +271,6 @@ Resources:
       ToPort: 65535
       GroupId: !Ref SecurityGroupLB
       SourceSecurityGroupId: !GetAtt SecurityGroupCI.GroupId
-      SourceSecurityGroupOwnerId: !Ref AWSAccountId
   SecurityGroup3000inbound:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
