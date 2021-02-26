@@ -1,4 +1,4 @@
-# QA Server Container and Appication Orchistration
+# QA Server Container and Application Orchestration
 
 This app can be installed using Docker to serve as a Questioning Authority (QA) Server for accessing external authorities.  It is part of a larger architecture supporting linked data authority access.  See [LD4P/linked_data_authorities](https://github.com/LD4P/linked_data_authorities) for more information on the full architecture.  From this app, you can send a search query and get back multiple results OR you can fetch a single term. 
 
