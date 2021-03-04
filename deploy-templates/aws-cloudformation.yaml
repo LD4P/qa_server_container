@@ -6,17 +6,17 @@ Description: >
   --template-body file://./aws-cloudformation.yaml \
   --parameters file://./parameters.env --capabilities CAPABILITY_NAMED_IAM
   3. You will need to validate the ACM certificate after the stack has been created, by creating the DNS record that will appear in the CloudFormation and ACM consoles.
-  TODO: Create a prerequisites.yml template that will spin up the bucket, the EFS share and access points, and output the values needed for your parameters.env file
+  TODO: Create a prerequisites.yml template that will spin up 1. the bucket, 2. the EFS share and 3. both access points, and output the values needed for your parameters.env file
   MAYBE: Build a CI/CD that leverages all this templating and reloads your container image when you push changes to the git repo?
   
 Parameters:
   AWSVpcId:
     Type: String
     Default: ''
-    Description: Your AWS VPC ID. It should look like vpc-4d4bec2b. Required for load balancer configuration and security group rules.
-  SubnetId:
+    Description: Your AWS VPC ID. It should look like vpc-1a2b3c4d. Required for load balancer configuration and security group rules.
+  SubnetIds:
     Type: List<AWS::EC2::Subnet::Id>
-    Description: Select at two subnets in your selected VPC. The values must be separated by commas.
+    Description: Select two subnets in your selected VPC. The values must be separated by commas.
   TaskDefinitionName:
     Type: String
     Default: ''
@@ -24,11 +24,11 @@ Parameters:
   S3BucketName:
     Type: String
     Default: ''
-    Description: Name of the S3 bucket where the environment file resides. The environment file must exist prior to running this template, or else the application will fail to launch.
+    Description: Name of the S3 bucket where the environment file resides.  If you ran the prerequisites template, this value should match the one you used in that template.
   EnvFileName:
     Type: String
     Default: ''
-    Description: Name of the environment file. This must exist for the application to launch, and it must be populated with values appropriate to your environment.
+    Description: Name of the environment file. The environment file must exist prior to running this template, or else the application will fail to launch. You can use a copy of the parameters.env.example file, populated with values appropriate to your environment.
   ImageLocation:
     Type: String
     Default: ''
@@ -207,7 +207,7 @@ Resources:
       Scheme: internet-facing
       SecurityGroups:
         - !Ref SecurityGroupLB
-      Subnets: !Ref SubnetId
+      Subnets: !Ref SubnetIds
       Tags:
         - Key: Name
           Value:
@@ -239,7 +239,6 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties: 
       GroupDescription: Security Group to attach to the container instances
-      GroupName: 
       GroupName: !Join ["", [!Ref AWS::StackName, "-qa-server-instance-group"]]
       VpcId: !Ref AWSVpcId
   SecurityGroupEgressCI:
@@ -333,7 +332,7 @@ Resources:
   ECSAutoScalingGroup:
     Type: AWS::AutoScaling::AutoScalingGroup
     Properties:
-      VPCZoneIdentifier: !Ref 'SubnetId'
+      VPCZoneIdentifier: !Ref 'SubnetIds'
       LaunchConfigurationName: !Ref 'ContainerInstances'
       MinSize: '1'
       MaxSize: '2'
