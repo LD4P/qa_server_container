@@ -88,6 +88,9 @@ Resources:
         - Key: "Name"
           Value: !Ref EFSAuthoritiesAccessPoint
       FileSystemId: !Ref Filesystem
+      PosixUser:
+        Gid: 0
+        Uid: 0
       RootDirectory: 
         Path: "/authorities"
   DatabaseAccessPoint:
@@ -97,6 +100,9 @@ Resources:
         - Key: "Name"
           Value: !Ref EFSDatabaseAccessPoint
       FileSystemId: !Ref Filesystem
+      PosixUser:
+        Gid: 0
+        Uid: 0
       RootDirectory: 
         Path: "/db-mysql-data"
 Outputs:

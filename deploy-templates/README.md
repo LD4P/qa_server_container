@@ -23,4 +23,17 @@ This folder contains several files you can use to deploy the qa-server container
 
 For those who may not want to create all of the resources from scratch, you can simply edit the CloudFormation template to exclude the unwanted resources; if you have an existing infrastructure and you only want the ECS task definition, that is provided in the form of the task-definition.json file. The task definition file also requires you to fill in values appropriate to your environment, however, as a simple JSON document it does not allow for variable substitution (or even comments). The variables have been indicated with angle brackets, and they have been named consistent with the variables in the CloudFormation template, so you can use the instructions in the latter to help with filling them in. Once the values are in place, the JSON file can be used to create an ECS task definition capable of running the QA server container.
 
-Please note that the prerequisites listed above are required for both the task definition and the CloudFormation template. The container will not run properly without those pieces, and CloudFormation will not create them for you.
+# Prerequisites
+
+Something about the template here
+
+When the prerequisites template runs successfully, it will provision the necessary resources, and it will output four pieces of information needed for the next stage: the name of the S3 bucket, the id of the EFS filesystem, and the ids of the two EFS access points. Before you proceed with the next template, you need to upload a parameters file to the S3 bucket, and you need to place at least one authority file to the EFS access point dedicated to the authority files.
+
+To upload authority files to the authority EFS access point, use the following commands to mount the authority EFS access point as a directory on an EC2 Linux server. 
+```
+sudo mkdir /qa-server
+sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport *EFSFilesystemId*.efs.*aws-region*.amazonaws.com:/authorities /qa-server
+```
+Once the authority EFS access point is mounted, simply copy one or more authority files to the filesystem. 
+
+The next step is to upload an environment file to the S3 bucket. A template for the environment file is provided in this repo as .env.example; make a copy and rename it, and populate the values with ones appropriate to your environment. For the purposes of this deployment, the AUTHORITIES_PATH variable should simply be `authorities`.
