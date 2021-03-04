@@ -7,9 +7,9 @@ Description: >
      ParameterKey=EFSName,ParameterValue=qa-server-filesystem \
      ParameterKey=EFSAuthoritiesAccessPoint,ParameterValue=qa-server-authorities-ap \
      ParameterKey=EFSDatabaseAccessPoint,ParameterValue=qa-server-database-ap   \
-     ParameterKey=AWSVpcId,ParameterValue=vpc-4d4bec2b   \
-     ParameterKey=SubnetIds,ParameterValue=subnet-d7ad4ca1,subnet-83a890da  
-  2. Make a copy of the parameters.env.example file, rename it, and populate the empty values with the following outputs of this template: S3BucketName, VolumeID, AuthorityAccessPointId, and DatabaseAccessPointId. This parameters file will be used to hold the values for the aws-cloudformation.yaml template.
+     ParameterKey=AWSVpcId,ParameterValue=vpc-5e5cfd3a   \
+     ParameterKey=SubnetIds,ParameterValue="subnet-d7ad4ca1\,subnet-83a890da"  
+  2. Make a copy of the parameters.env.example file, rename it to parameters.env, and populate the empty values with the following outputs of this template: S3BucketName, VolumeID, AuthorityAccessPointId, and DatabaseAccessPointId. This parameters.env file will be used to hold the values for the aws-cloudformation.yaml template.
 Parameters:
   AWSVpcId:
     Type: String
@@ -53,7 +53,6 @@ Resources:
     Type: AWS::EFS::MountTarget
     Properties: 
       FileSystemId: !Ref Filesystem
-      IpAddress: String
       SecurityGroups: 
         - !Ref NFSSecurityGroup
       SubnetId: !Select [ 0, !Ref SubnetIds ]
@@ -61,7 +60,6 @@ Resources:
     Type: AWS::EFS::MountTarget
     Properties: 
       FileSystemId: !Ref Filesystem
-      IpAddress: String
       SecurityGroups: 
         - !Ref NFSSecurityGroup
       SubnetId: !Select [ 1, !Ref SubnetIds ]
