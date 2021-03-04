@@ -1,0 +1,43 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+Resources:
+  Bucket:
+    Type: AWS::S3::Bucket
+    Properties: 
+      AccessControl: String
+      BucketName: String
+  Filesystem:
+    Type: AWS::EFS::FileSystem
+    Properties: 
+      FileSystemPolicy: Json
+  AuthorityAccessPoint:
+    Type: AWS::EFS::AccessPoint
+    Properties: 
+      AccessPointTags: 
+        - AccessPointTag
+      ClientToken: String
+      FileSystemId: String
+      PosixUser: 
+        PosixUser
+      RootDirectory: 
+        RootDirectory
+  DatabaseAccessPoint:
+    Type: AWS::EFS::AccessPoint
+    Properties: 
+      AccessPointTags: 
+        - AccessPointTag
+      ClientToken: String
+      FileSystemId: String
+      PosixUser: 
+        PosixUser
+      RootDirectory: 
+        RootDirectory
+Outputs:
+  Bucket:
+    Value: !Ref 'Bucket'
+  Filesystem:
+    Value: !Ref 'Filesystem'
+  AuthorityAccessPoint:
+    Value: !Ref 'AuthorityAccessPoint'
+  DatabaseAccessPoint:
+    Value: !Ref 'DatabaseAccessPoint'
