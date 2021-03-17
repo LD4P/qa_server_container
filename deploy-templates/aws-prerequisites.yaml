@@ -1,0 +1,117 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: >
+  1. Review the parameters below and ensure that they are appropriate to your environment. Then deploy with this aws cli command:
+    aws cloudformation create-stack --stack-name qa-server-prerequisites \
+    --template-body file://./aws-prerequisites.yaml \
+    --parameters ParameterKey=S3BucketName,ParameterValue=qa-server-container \
+     ParameterKey=EFSName,ParameterValue=qa-server-filesystem \
+     ParameterKey=EFSAuthoritiesAccessPoint,ParameterValue=qa-server-authorities-ap \
+     ParameterKey=EFSDatabaseAccessPoint,ParameterValue=qa-server-database-ap   \
+     ParameterKey=AWSVpcId,ParameterValue=vpc-5e5cfd3a   \
+     ParameterKey=SubnetIds,ParameterValue="subnet-d7ad4ca1\,subnet-83a890da"  
+  2. Make a copy of the parameters.env.example file, rename it to parameters.env, and populate the empty values with the following outputs of this template: S3BucketName, VolumeID, AuthorityAccessPointId, and DatabaseAccessPointId. This parameters.env file will be used to hold the values for the aws-cloudformation.yaml template.
+Parameters:
+  AWSVpcId:
+    Type: String
+    Default: ''
+    Description: Your AWS VPC ID. It should look like vpc-4d4bec2b. Required for load balancer configuration and security group rules.
+  SubnetIds:
+    Type: List<AWS::EC2::Subnet::Id>
+    Description: Select two subnets in your selected VPC. The values must be separated by commas.
+  S3BucketName:
+    Type: String
+    Default: ''
+    Description: The name you wish your S3 bucket to have. This bucket name must be unique within the entire AWS region, so you will have to change the value provided here to one that is not already in use.
+  EFSName:
+    Type: String
+    Description: The name you wish your EFS filesystem to have. This name must be unique within your account.
+  EFSAuthoritiesAccessPoint:
+    Type: String
+    Default: ''
+    Description: The name you wish your EFS authorities access point to have. This will create an access point where your service's authorities files will live. After it is created, you will need to connect to this access point to upload at least one authority file.
+  EFSDatabaseAccessPoint:
+    Type: String
+    Default: ''
+    Description: The name you wish your EFS database access point to have. This will create an access point that the database will use to store its datafiles.
+Resources:
+  Bucket:
+    Type: AWS::S3::Bucket
+    Properties: 
+      BucketName: !Ref S3BucketName
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+  Filesystem:
+    Type: AWS::EFS::FileSystem
+    Properties: 
+      FileSystemTags:
+        - Key: "Name"
+          Value: !Ref EFSName
+  EFSMountTarget1:
+    Type: AWS::EFS::MountTarget
+    Properties: 
+      FileSystemId: !Ref Filesystem
+      SecurityGroups: 
+        - !Ref NFSSecurityGroup
+      SubnetId: !Select [ 0, !Ref SubnetIds ]
+  EFSMountTarget2:
+    Type: AWS::EFS::MountTarget
+    Properties: 
+      FileSystemId: !Ref Filesystem
+      SecurityGroups: 
+        - !Ref NFSSecurityGroup
+      SubnetId: !Select [ 1, !Ref SubnetIds ]
+  NFSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties: 
+      GroupDescription: "Permit access over port 2049"
+      GroupName: "QA Server Permit NFS"
+      SecurityGroupEgress: 
+        - CidrIp: 0.0.0.0/0
+          Description: Wide open to the world
+          FromPort: 2049
+          IpProtocol: tcp
+          ToPort: 2049
+      SecurityGroupIngress: 
+        - CidrIp: 0.0.0.0/0
+          Description: Wide open to the world
+          FromPort: 2049
+          IpProtocol: tcp
+          ToPort: 2049
+      VpcId: !Ref AWSVpcId
+  AuthorityAccessPoint:
+    Type: AWS::EFS::AccessPoint
+    Properties: 
+      AccessPointTags: 
+        - Key: "Name"
+          Value: !Ref EFSAuthoritiesAccessPoint
+      FileSystemId: !Ref Filesystem
+      PosixUser:
+        Gid: 0
+        Uid: 0
+      RootDirectory: 
+        Path: "/authorities"
+  DatabaseAccessPoint:
+    Type: AWS::EFS::AccessPoint
+    Properties: 
+      AccessPointTags: 
+        - Key: "Name"
+          Value: !Ref EFSDatabaseAccessPoint
+      FileSystemId: !Ref Filesystem
+      PosixUser:
+        Gid: 0
+        Uid: 0
+      RootDirectory: 
+        Path: "/db-mysql-data"
+Outputs:
+  Bucket:
+    Value: !Ref Bucket
+  Filesystem:
+    Value: !Ref Filesystem
+  AuthorityAccessPoint:
+    Value: !Ref AuthorityAccessPoint
+  DatabaseAccessPoint:
+    Value: !Ref DatabaseAccessPoint
+    
