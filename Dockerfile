@@ -16,7 +16,7 @@ RUN apk add --update --no-cache \
       nodejs \
       sqlite-dev \
       tzdata \
-      mariadb-dev \
+      mariadb \
       imagemagick6-dev imagemagick6-libs
 
 
