@@ -1,4 +1,8 @@
+**/.DS_Store
+.dockerignore
+.env.example
 .git
+/deploy-templates
 /log/*
 /tmp/*
 /node_modules
