@@ -348,7 +348,6 @@ Resources:
       SecurityGroups: [!Ref 'SecurityGroupCI', !Ref 'SecurityGroupLB']
       InstanceType: !Ref 'InstanceType'
       IamInstanceProfile: !Ref 'EC2InstanceProfile'
-      KeyName: 'cul-admin'
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
