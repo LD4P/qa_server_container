@@ -2,9 +2,10 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: >
   1. Make a copy of parameters.env.example and rename it to parameters.env, then populate it with the values appropriate to your environment. CloudFormation will read those values from the file if you pass it on the command line when you create or update the stack. See the parameter definitions below for full instructions.
   2. Navigate to the directory that contains these files and run the following aws cli command:
-  aws cloudformation create-stack --stack-name qa-server-ld4p3 \
+  aws cloudformation create-stack --stack-name qa-server-ld4p3-2 \
   --template-body file://./aws-cloudformation.yaml \
-  --parameters file://./parameters.env --capabilities CAPABILITY_NAMED_IAM
+  --parameters file://./parameters-copy.env --capabilities CAPABILITY_NAMED_IAM \
+  --profile ld4l-qa-cloudformation-useer --role-arn arn:aws:iam::092831676293:role/qa-service-cloudformation-role
   3. You will need to validate the ACM certificate after the stack has been created, by creating the DNS record that will appear in the CloudFormation and ACM consoles.
   
 Parameters:
@@ -46,7 +47,7 @@ Parameters:
   DomainName:
     Type: String
     Default: ''
-    Description: Domain name to use for the public facing service. This is only used to provision the ACM certificate for the load balancer to serve secure connections. If this is not desired, the certificate resource can be removed from this template, along with the load balancer listener for port 443 that requires the certificate.
+    Description: Domain name to use for the public facing service. This is only used to provision the ACM certificate for the load balancer to serve secure connections. If this is not desired, the certificate resource can be removed from this template, along with the load balancer listener for port 443 that requires the certificate. If this domain is hosted in Route 53, nothing need be done to validate the domain. If it is not hosted in Route 53, you will need to validate the domain by creating a CNAME record with a unique value. You will find the value in the output of this template.
   InstanceType:
     Description: EC2 instance type for the cluster. This is recommended to be a type with at least 2 CPUs and 8 GiB of RAM, but you can change it here if you need to.
     Type: String
@@ -123,9 +124,6 @@ Resources:
               Protocol: tcp
               ContainerPort: 3306
       Cpu: 1024
-# We will want to create this role for the user, and we could
-# use this to wire up the S3 bucket access piece by creating this role.
-# Is is possible to create the bucket as well?
       ExecutionRoleArn: !GetAtt TaskRole.Arn
       Memory: 1024
       NetworkMode: bridge
@@ -137,7 +135,6 @@ Resources:
           EFSVolumeConfiguration:
             FilesystemId: !Ref VolumeId
             AuthorizationConfig: 
-              Iam: DISABLED
               AccessPointId: !Ref AuthorityAccessPointId
             RootDirectory: "/"
             TransitEncryption: ENABLED
@@ -145,16 +142,9 @@ Resources:
           EFSVolumeConfiguration:
             FilesystemId: !Ref VolumeId
             AuthorizationConfig: 
-              Iam: DISABLED
               AccessPointId: !Ref DatabaseAccessPointId
             RootDirectory: "/"
             TransitEncryption: ENABLED
-##########
-# Now we're getting into creating a brand new cluster. This requires creating:
-#   a launch configuration
-#   an auto scaling group that uses the launch C
-#   a capacity provider that uses the ASG
-#   a cluster that uses the CP
   CloudwatchLogGroup:
     Type: AWS::Logs::LogGroup
     Properties: 
@@ -457,7 +447,7 @@ Outputs:
   Cluster:
     Value: !Ref 'EcsCluster'
   LoadBalancer:
-    Description: Your Load Balancer's URL
+    Description: Your Load Balancer's URL. Create a DNS record for {!Ref DomainName} that points to this location.
     Value: !Join ['', [!GetAtt [LoadBalancer, DNSName]]]
   TaskDefinition:
     Value: !Ref 'TaskDefinition'
