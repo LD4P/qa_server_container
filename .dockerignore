@@ -1,6 +1,7 @@
 **/.DS_Store
 .dockerignore
 .env.example
+*.env
 .git
 /deploy-templates
 /log/*
