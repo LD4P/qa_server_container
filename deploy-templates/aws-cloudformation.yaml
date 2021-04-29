@@ -2,10 +2,10 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: >
   1. Make a copy of parameters.env.example and rename it to parameters.env, then populate it with the values appropriate to your environment. CloudFormation will read those values from the file if you pass it on the command line when you create or update the stack. See the parameter definitions below for full instructions.
   2. Navigate to the directory that contains these files and run the following aws cli command:
-  aws cloudformation create-stack --stack-name qa-server-ld4p3-2 \
+  aws cloudformation create-stack --stack-name qa-server \
   --template-body file://./aws-cloudformation.yaml \
   --parameters file://./parameters-copy.env --capabilities CAPABILITY_NAMED_IAM \
-  --profile ld4l-qa-cloudformation-useer --role-arn arn:aws:iam::092831676293:role/qa-service-cloudformation-role
+  --profile qa-useer --role-arn arn:aws:iam::<your_account_id>:role/qa-role
   3. You will need to validate the ACM certificate after the stack has been created, by creating the DNS record that will appear in the CloudFormation and ACM consoles.
   
 Parameters:
