@@ -8,8 +8,7 @@ Description: >
      ParameterKey=EFSAuthoritiesAccessPoint,ParameterValue=qa-server-authorities-ap \
      ParameterKey=EFSDatabaseAccessPoint,ParameterValue=qa-server-database-ap   \
      ParameterKey=AWSVpcId,ParameterValue=vpc-5e5cfd3a   \
-     ParameterKey=SubnetIds,ParameterValue="subnet-d7ad4ca1\,subnet-83a890da" \
-     --capabilities CAPABILITY_NAMED_IAM
+     ParameterKey=SubnetIds,ParameterValue="subnet-d7ad4ca1\,subnet-83a890da"
   2. The outputs of this template file will be used by the aws-cloudformation.yaml template.
 Parameters:
   AWSVpcId:
