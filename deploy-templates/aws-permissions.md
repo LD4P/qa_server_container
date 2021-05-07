@@ -129,5 +129,10 @@ Once your role has been created, click on it to view the role summary page, and 
 
 You should also use this user and role to make any updates to the stack, or to delete the stack.
 
+`aws cloudformation update-stack --stack-name qa-server --profile qa-user --role-arn arn:aws:iam::<your_account_id>:role/qa-role`
+
+`aws cloudformation delete-stack --stack-name qa-server --profile qa-user --role-arn arn:aws:iam::<your_account_id>:role/qa-role`
+
+
 
 
