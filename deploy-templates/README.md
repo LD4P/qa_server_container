@@ -25,9 +25,11 @@ For those who may not want to create all of the resources from scratch, you can 
 
 # Prerequisites
 
-Something about the template here
+In order to make use of these templates you must have some information about your AWS account, such as the ID of your VPC and its subnets. You will also have to supply some custom names for things like the environment file and the S3 bucket it lives in. 
 
-When the prerequisites template runs successfully, it will provision the necessary resources, and it will output four pieces of information needed for the next stage: the name of the S3 bucket, the id of the EFS filesystem, and the ids of the two EFS access points. Before you proceed with the next template, you need to upload a parameters file to the S3 bucket, and you need to place at least one authority file to the EFS access point dedicated to the authority files.
+Most of the resources created by the main deployment template (aws-cloudformation.yaml) can be created with little input other than a name. However, the container needs two volumes and a S3 bucket that must be created in advance of running the main deployment template. If you'd rather not create these manually, a prerequisites template (aws-prerequisites.yaml) is provided that will prepare those resources for you. 
+
+When the prerequisites template runs successfully, it will provision the necessary resources, and it will output four pieces of information needed for the next stage: the name of the S3 bucket, the id of the EFS filesystem, and the ids of the two EFS access points. Before you proceed with the main template, you need to upload a parameters file to the S3 bucket, and you need to place at least one authority file to the EFS access point dedicated to the authority files.
 
 To upload authority files to the authority EFS access point, use the following commands to mount the authority EFS access point as a directory on an EC2 Linux server. 
 ```

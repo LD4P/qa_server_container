@@ -3,11 +3,7 @@ Description: >
   1. Review the parameters below and ensure that they are appropriate to your environment. Then deploy with this aws cli command:
     aws cloudformation create-stack --stack-name qa-server-prerequisites \
     --template-body file://./aws-prerequisites.yaml \
-    --parameters ParameterKey=S3BucketName,ParameterValue=qa-server-container \
-     ParameterKey=EFSName,ParameterValue=qa-server-filesystem \
-     ParameterKey=EFSAuthoritiesAccessPoint,ParameterValue=qa-server-authorities-ap \
-     ParameterKey=EFSDatabaseAccessPoint,ParameterValue=qa-server-database-ap   \
-     ParameterKey=AWSVpcId,ParameterValue=vpc-5e5cfd3a   \
+    --parameters ParameterKey=AWSVpcId,ParameterValue=vpc-5e5cfd3a   \
      ParameterKey=SubnetIds,ParameterValue="subnet-d7ad4ca1\,subnet-83a890da"
   2. The outputs of this template file will be used by the aws-cloudformation.yaml template.
 Parameters:
@@ -20,18 +16,19 @@ Parameters:
     Description: Select two subnets in your selected VPC. The values must be separated by commas.
   S3BucketName:
     Type: String
-    Default: ''
+    Default: 'qa-server-container'
     Description: The name you wish your S3 bucket to have. This bucket name must be unique within the entire AWS region, so you will have to change the value provided here to one that is not already in use.
   EFSName:
     Type: String
     Description: The name you wish your EFS filesystem to have. This name must be unique within your account.
+    Default: 'qa-server-filesystem'
   EFSAuthoritiesAccessPoint:
     Type: String
-    Default: ''
+    Default: 'qa-server-authorities-ap'
     Description: The name you wish your EFS authorities access point to have. This will create an access point where your service's authorities files will live. After it is created, you will need to connect to this access point to upload at least one authority file.
   EFSDatabaseAccessPoint:
     Type: String
-    Default: ''
+    Default: 'qa-server-database-ap'
     Description: The name you wish your EFS database access point to have. This will create an access point that the database will use to store its datafiles.
 Resources:
   Bucket:
