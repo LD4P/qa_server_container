@@ -18,6 +18,7 @@ environment {
         AWS_ECS_MEMORY = '512'
         AWS_ECS_CLUSTER = 'qa-server-ld4p3-cluster'
         AWS_ECS_TASK_DEFINITION_PATH = './deploy-templates/task-definition.json'
+        AWS_ECR_URL = '092831676293.dkr.ecr.us-east-1.amazonaws.com/qa-server/qa-server-app'
     }
     
     stages {
@@ -32,7 +33,7 @@ environment {
         
         stage('Build Docker Image') {
           steps {
-            withCredentials([string(credentialsId: 'AWS_REPOSITORY_URL_SECRET', variable: 'AWS_ECR_URL')]) {
+            withCredentials([string(credentialsId: 'd30d02f9-809b-45dd-981a-dc015fb135be', variable: 'AWS_ECR_URL')]) {
               script {
                 docker.build("${AWS_ECR_URL}:latest", " .")
               }
@@ -43,8 +44,8 @@ environment {
 
         stage('Push Image to ECR') {
           steps {
-            withCredentials([string(credentialsId: 'AWS_REPOSITORY_URL_SECRET', variable: 'AWS_ECR_URL')]) {
-              withAWS(region: "${AWS_ECR_REGION}", credentials: 'personal-aws-ecr') {
+            withCredentials([string(credentialsId: 'd30d02f9-809b-45dd-981a-dc015fb135be', variable: 'AWS_ECR_URL')]) {
+              withAWS(region: "${AWS_ECR_REGION}", credentials: 'd30d02f9-809b-45dd-981a-dc015fb135be') {
                 script {
                   def login = ecrLogin()
                   sh('#!/bin/sh -e\n' + "${login}") // hide logging
