@@ -7,8 +7,7 @@ pipeline {
             timeout(time: 1, unit: 'HOURS')
     }
 environment {
-        POM_VERSION = getVersion()
-        JAR_NAME = getJarName()
+        POM_VERSION = 26
         AWS_ECR_REGION = 'us-east-1'
         AWS_ECS_SERVICE = 'qa-server-service-2'
         AWS_ECS_TASK_DEFINITION = 'qa-server-woth-cluster'
@@ -68,15 +67,5 @@ environment {
           }
         }
     }
-    post {
-        always {
-            withCredentials([string(credentialsId: 'd30d02f9-809b-45dd-981a-dc015fb135be', variable: 'AWS_ECR_URL')]) {
-                junit allowEmptyResults: true, testResults: 'target/surfire-reports/*.xml'
-                publishHTML([allowMissing: true, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'target/site/jacoco-ut/', reportFiles: 'index.html', reportName: 'Unit Testing Coverage', reportTitles: 'Unit Testing Coverage'])
-                jacoco(execPattern: 'target/jacoco-ut.exec')
-                deleteDir()
-                sh "docker rmi ${AWS_ECR_URL}:${POM_VERSION}"
-            }
-        }
-    }
+    
 }
