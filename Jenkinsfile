@@ -1,14 +1,12 @@
-#!groovy
-
 pipeline {
     agent any
 
-options {
-        buildDiscarder(logRotator(numToKeepStr: '10'))
-        disableConcurrentBuilds()
-        timeout(time: 1, unit: 'HOURS')
-        timestamps()
-}
+    options {
+            buildDiscarder(logRotator(numToKeepStr: '10'))
+            disableConcurrentBuilds()
+            timeout(time: 1, unit: 'HOURS')
+            timestamps()
+    }
     tools {}
 
 environment {
@@ -23,8 +21,10 @@ environment {
         AWS_ECS_MEMORY = '512'
         AWS_ECS_CLUSTER = 'qa-server-ld4p3-cluster'
         AWS_ECS_TASK_DEFINITION_PATH = './deploy-templates/task-definition.json'
-}
+    }
+    
     stages {
+    
         stage('Build & Test') {}
 
         stage('Build Docker Image') {
