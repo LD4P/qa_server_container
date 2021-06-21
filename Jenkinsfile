@@ -5,10 +5,12 @@ pipeline {
             buildDiscarder(logRotator(numToKeepStr: '10'))
             disableConcurrentBuilds()
             timeout(time: 1, unit: 'HOURS')
-            timestamps()
     }
-    tools {}
-
+    tools {
+            jdk 'openjdk-11'
+            maven 'maven 3.6.3'
+            dockerTool 'docker-latest'
+    }
 environment {
         POM_VERSION = getVersion()
         JAR_NAME = getJarName()
@@ -25,8 +27,14 @@ environment {
     
     stages {
     
-        stage('Build & Test') {}
-
+        stage('Build & Test') {
+          steps {
+            withMaven(options: [artifactsPublisher(), mavenLinkerPublisher(), dependenciesFingerprintPublisher(disabled: true), jacocoPublisher(disabled: true), junitPublisher(disabled: true)]) {
+              sh "mvn -B -U clean package"
+            }
+          }
+        }
+        
         stage('Build Docker Image') {
           steps {
             withCredentials([string(credentialsId: 'AWS_REPOSITORY_URL_SECRET', variable: 'AWS_ECR_URL')]) {
@@ -64,6 +72,15 @@ environment {
           }
         }
     }
-
-    post {}
+    post {
+        always {
+            withCredentials([string(credentialsId: 'AWS_REPOSITORY_URL_SECRET', variable: 'AWS_ECR_URL')]) {
+                junit allowEmptyResults: true, testResults: 'target/surfire-reports/*.xml'
+                publishHTML([allowMissing: true, alwaysLinkToLastBuild: false, keepAll: false, reportDir: 'target/site/jacoco-ut/', reportFiles: 'index.html', reportName: 'Unit Testing Coverage', reportTitles: 'Unit Testing Coverage'])
+                jacoco(execPattern: 'target/jacoco-ut.exec')
+                deleteDir()
+                sh "docker rmi ${AWS_ECR_URL}:${POM_VERSION}"
+            }
+        }
+    }
 }
