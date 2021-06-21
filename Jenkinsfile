@@ -6,9 +6,6 @@ pipeline {
             disableConcurrentBuilds()
             timeout(time: 1, unit: 'HOURS')
     }
-    tools {
-            dockerTool 'null'
-    }
 environment {
         POM_VERSION = getVersion()
         JAR_NAME = getJarName()
