@@ -335,7 +335,7 @@ Resources:
       VPCZoneIdentifier: !Ref 'SubnetIds'
       LaunchConfigurationName: !Ref 'ContainerInstances'
       MinSize: '1'
-      MaxSize: '2'
+      MaxSize: '4'
       DesiredCapacity: '2'
     CreationPolicy:
       ResourceSignal:
