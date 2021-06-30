@@ -1,0 +1,61 @@
+# Description: Builds and pushes the Docker image created by Dockerfile to AWS ECR.
+#
+# ------------------------
+# Outside Configurations
+# ------------------------
+# 1. Create the repository in AWS ECR.
+#      Use naming convention `-dev` (e.g. ld4p/qa_authority_lookup-dev) for dev branch
+#      Use naming convention of no extension (e.g. ld4p/qa_authority_lookup) for main branch
+#
+# 2. Set GitHub Repository Secrets in GitHub application repo (the one defining the image, e.g. ld4p/qa_server_container).
+#    In GitHub repository click: Settings -> Secrets -> New repository secret -> add the following secrets
+#      * Name: AWS_ACCESS_KEY_ID
+#        Value: _copy access key from AWS automation user_
+#      * Name: AWS_SECRET_ACCESS_KEY
+#        Value: _copy secret access key from AWS automation user_
+#
+# ------------------------
+# Updates to this Configuration
+# ------------------------
+# 1. Set the branch name
+#    Branch: (choose one) update on -> push -> branches in this config.
+#      * Set to [ dev ] for build of commits to dev branch
+#      * Set to [ main ] for build of commits to main branch
+#
+# 2. Set the ECR_REPOSITORY name
+#    ECR_REPOSITORY: update jobs -> build -> name: Build, tag, and push image to Amazon ECR -> env -> ECR_REPOSITORY
+#      * Set to repository name as created in AWS ECR, for example
+#          ld4p/qa_authority_lookup-dev for [ dev ] branch
+#          ld4p/qa_authority_lookup for [ main ] branch
+#
+name: Push ld4p/qa_server_container image to Amazon ECR as ld4p/qa_authority_lookup-dev
+
+on:
+  push:
+    branches: [ dev ]
+
+jobs:
+  build:
+    name: Build image
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v1
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
+
+    - name: Login to Amazon ECR
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v1
+
+    - name: Build, tag, and push image to Amazon ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        ECR_REPOSITORY: ld4p/qa_authority_lookup-test
+        IMAGE_TAG: ${{ github.sha }}
+      run: |
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+        docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
