@@ -23,7 +23,7 @@
 #      * Set to [ main ] for build of commits to main branch
 #
 # 2. Set the ECR_REPO_NAME name
-#    ECR_REPO_NAME: update jobs -> env -> ECR_REPO_NAME in this config.
+#    ECR_REPO_NAME: update jobs -> build -> env -> ECR_REPO_NAME in this config.
 #      * Set to repository name as created in AWS ECR, for example
 #          ld4p/qa_authority_lookup-dev for [ dev ] branch
 #          ld4p/qa_authority_lookup for [ main ] branch
@@ -35,12 +35,11 @@ on:
     branches: [ dev ]
 
 jobs:
-  env:
-    ECR_REPO_NAME: ld4p/qa_authority_lookup-test
   build:
     name: Build image
     runs-on: ubuntu-latest
-
+    env:
+      ECR_REPO_NAME: ld4p/qa_authority_lookup-test
     steps:
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
