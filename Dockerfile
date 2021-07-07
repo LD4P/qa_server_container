@@ -7,7 +7,7 @@ FROM ruby:$RUBY_VERSION-alpine
 ## - nodejs: Required by Rails
 ## - sqlite-dev: For running tests in the container
 ## - tzdata: add time zone support
-## - mariadb-dev: To allow use of MySQL gem
+## - mariadb-dev: To allow use of MySQL2 gem
 ## - imagemagick: for image processing
 RUN apk add --update --no-cache \
       bash \

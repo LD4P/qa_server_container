@@ -8,8 +8,8 @@ Description: >
      ParameterKey=EFSAuthoritiesAccessPoint,ParameterValue=qa-server-authorities-ap \
      ParameterKey=EFSDatabaseAccessPoint,ParameterValue=qa-server-database-ap   \
      ParameterKey=AWSVpcId,ParameterValue=vpc-5e5cfd3a   \
-     ParameterKey=SubnetIds,ParameterValue="subnet-d7ad4ca1\,subnet-83a890da"  
-  2. Make a copy of the parameters.env.example file, rename it to parameters.env, and populate the empty values with the following outputs of this template: S3BucketName, VolumeID, AuthorityAccessPointId, and DatabaseAccessPointId. This parameters.env file will be used to hold the values for the aws-cloudformation.yaml template.
+     ParameterKey=SubnetIds,ParameterValue="subnet-d7ad4ca1\,subnet-83a890da"
+  2. The outputs of this template file will be used by the aws-cloudformation.yaml template.
 Parameters:
   AWSVpcId:
     Type: String
@@ -67,7 +67,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties: 
       GroupDescription: "Permit access over port 2049"
-      GroupName: "QA Server Permit NFS"
+      GroupName: !Ref EFSName
       SecurityGroupEgress: 
         - CidrIp: 0.0.0.0/0
           Description: Wide open to the world
@@ -106,12 +106,12 @@ Resources:
       RootDirectory: 
         Path: "/db-mysql-data"
 Outputs:
-  Bucket:
+  S3BucketName:
     Value: !Ref Bucket
-  Filesystem:
+  VolumeId:
     Value: !Ref Filesystem
-  AuthorityAccessPoint:
+  AuthorityAccessPointId:
     Value: !Ref AuthorityAccessPoint
-  DatabaseAccessPoint:
+  DatabaseAccessPointId:
     Value: !Ref DatabaseAccessPoint
     
