@@ -1,12 +1,29 @@
+# Prerequisites:
+# This task definition assumes that you have built the qa-server container image and
+# uploaded it to your ECR repo. It also requires a S3 bucket containing the .env file
+# and a EFS filesystem with four separate access points for the container volumes.
+
+# This task definition template requires the following variable substitutions
+# that must be done manually before this file can be used:
+# <taskname> = the name of this task definition
+# <taskversion> = the version number of the task definition
+# <containername> = the name of the qa-server app container in your image repo
+# <accountid> = your AWS account number
+# <bucketname> = the S3 bucket containing the environment file
+# <envfile> = the environment file name, must end in .env
+# <efs-filesystem> = the EFS filesystem id
+# <efs-accesspoint-x> = the EFS filesystem access point id for each volume
+
+
 {
   "ipcMode": null,
-  "executionRoleArn": "arn:aws:iam::092831676293:role/qa-server-ld4p3-TaskRole-K1GW1QWSUADY",
+  "executionRoleArn": "arn:aws:iam::<accountid>:role/ecsTaskExecutionRole",
   "containerDefinitions": [
     {
-      "dnsSearchDomains": [],
+      "dnsSearchDomains": null,
       "environmentFiles": [
         {
-          "value": "arn:aws:s3:::ld4l-qa-server/qa-server-container-with-db.env",
+          "value": "arn:aws:s3:::<bucketname>/<envfile>.env",
           "type": "s3"
         }
       ],
@@ -14,79 +31,12 @@
         "logDriver": "awslogs",
         "secretOptions": null,
         "options": {
-          "awslogs-group": "/ecs/qa-server-ld4p3-lb",
+          "awslogs-group": "/ecs/<taskname>",
           "awslogs-region": "us-east-1",
           "awslogs-stream-prefix": "ecs"
         }
       },
-      "entryPoint": [],
-      "portMappings": [
-        {
-          "hostPort": 3000,
-          "protocol": "tcp",
-          "containerPort": 3000
-        }
-      ],
-      "command": [],
-      "linuxParameters": null,
-      "cpu": 0,
-      "environment": [],
-      "resourceRequirements": null,
-      "ulimits": null,
-      "dnsServers": [],
-      "mountPoints": [
-        {
-          "readOnly": null,
-          "containerPath": "/app/ld4p/qa_server-webapp/config/authorities",
-          "sourceVolume": "qa-server-authorities"
-        }
-      ],
-      "workingDirectory": null,
-      "secrets": null,
-      "dockerSecurityOptions": [],
-      "memory": null,
-      "memoryReservation": 512,
-      "volumesFrom": [],
-      "stopTimeout": null,
-      "image": "092831676293.dkr.ecr.us-east-1.amazonaws.com/qa-server/qa-server-app:latest",
-      "startTimeout": null,
-      "firelensConfiguration": null,
-      "dependsOn": null,
-      "disableNetworking": null,
-      "interactive": null,
-      "healthCheck": null,
-      "essential": true,
-      "links": [
-        "qa-mariadb"
-      ],
-      "hostname": null,
-      "extraHosts": null,
-      "pseudoTerminal": null,
-      "user": null,
-      "readonlyRootFilesystem": null,
-      "dockerLabels": null,
-      "systemControls": [],
-      "privileged": null,
-      "name": "qa-server-app"
-    },
-    {
-      "dnsSearchDomains": [],
-      "environmentFiles": [
-        {
-          "value": "arn:aws:s3:::ld4l-qa-server/qa-server-container-with-db.env",
-          "type": "s3"
-        }
-      ],
-      "logConfiguration": {
-        "logDriver": "awslogs",
-        "secretOptions": null,
-        "options": {
-          "awslogs-group": "/ecs/qa-server-ld4p3-lb",
-          "awslogs-region": "us-east-1",
-          "awslogs-stream-prefix": "ecs"
-        }
-      },
-      "entryPoint": [],
+      "entryPoint": null,
       "portMappings": [
         {
           "hostPort": 3306,
@@ -94,13 +44,13 @@
           "containerPort": 3306
         }
       ],
-      "command": [],
+      "command": null,
       "linuxParameters": null,
       "cpu": 0,
       "environment": [],
       "resourceRequirements": null,
       "ulimits": null,
-      "dnsServers": [],
+      "dnsServers": null,
       "mountPoints": [
         {
           "readOnly": null,
@@ -110,7 +60,7 @@
       ],
       "workingDirectory": null,
       "secrets": null,
-      "dockerSecurityOptions": [],
+      "dockerSecurityOptions": null,
       "memory": null,
       "memoryReservation": 512,
       "volumesFrom": [],
@@ -123,113 +73,100 @@
       "interactive": null,
       "healthCheck": null,
       "essential": true,
-      "links": [],
+      "links": null,
       "hostname": null,
       "extraHosts": null,
       "pseudoTerminal": null,
       "user": null,
       "readonlyRootFilesystem": null,
-      "dockerLabels": {},
-      "systemControls": [],
+      "dockerLabels": null,
+      "systemControls": null,
       "privileged": null,
       "name": "qa-mariadb"
+    },
+    {
+      "dnsSearchDomains": null,
+      "environmentFiles": [
+        {
+          "value": "arn:aws:s3:::<bucketname>/<envfile>.env",
+          "type": "s3"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "secretOptions": null,
+        "options": {
+          "awslogs-group": "/ecs/<taskname>",
+          "awslogs-region": "us-east-1",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "entryPoint": null,
+      "portMappings": [
+        {
+          "hostPort": 3000,
+          "protocol": "tcp",
+          "containerPort": 3000
+        }
+      ],
+      "command": null,
+      "linuxParameters": null,
+      "cpu": 0,
+      "environment": [],
+      "resourceRequirements": null,
+      "ulimits": null,
+      "dnsServers": null,
+      "mountPoints": [
+        {
+          "readOnly": null,
+          "containerPath": "/app/ld4p/qa_server-webapp/config/authorities",
+          "sourceVolume": "qa-server-authorities"
+        }
+      ],
+      "workingDirectory": null,
+      "secrets": null,
+      "dockerSecurityOptions": null,
+      "memory": null,
+      "memoryReservation": 512,
+      "volumesFrom": [],
+      "stopTimeout": null,
+      "image": "<accountid>.dkr.ecr.us-east-1.amazonaws.com/<containername>:latest",
+      "startTimeout": null,
+      "firelensConfiguration": null,
+      "dependsOn": null,
+      "disableNetworking": null,
+      "interactive": null,
+      "healthCheck": null,
+      "essential": true,
+      "links": [
+        "qa-mariadb:qa-mariadb"
+      ],
+      "hostname": null,
+      "extraHosts": null,
+      "pseudoTerminal": null,
+      "user": null,
+      "readonlyRootFilesystem": null,
+      "dockerLabels": null,
+      "systemControls": null,
+      "privileged": null,
+      "name": "<containername>"
     }
   ],
   "placementConstraints": [],
   "memory": "1024",
-  "taskRoleArn": "arn:aws:iam::092831676293:role/qa-server-ld4p3-TaskRole-K1GW1QWSUADY",
+  "taskRoleArn": "arn:aws:iam::<accountid>:role/ecsTaskExecutionRole",
   "compatibilities": [
     "EC2"
   ],
-  "taskDefinitionArn": "arn:aws:ecs:us-east-1:092831676293:task-definition/qa-server-with-cluster:25",
-  "family": "qa-server-with-cluster",
-  "requiresAttributes": [
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "ecs.capability.execution-role-awslogs"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "com.amazonaws.ecs.capability.ecr-auth"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.17"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.21"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "com.amazonaws.ecs.capability.task-iam-role"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "ecs.capability.execution-role-ecr-pull"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "ecs.capability.efsAuth"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "ecs.capability.efs"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "ecs.capability.env-files.s3"
-    },
-    {
-      "targetId": null,
-      "targetType": null,
-      "value": null,
-      "name": "com.amazonaws.ecs.capability.docker-remote-api.1.25"
-    }
-  ],
+  "taskDefinitionArn": "arn:aws:ecs:us-east-1:<accountid>:task-definition/<taskname>:<taskversion>",
+  "family": "<taskname>",
   "pidMode": null,
   "requiresCompatibilities": [
     "EC2"
   ],
   "networkMode": "bridge",
   "cpu": "1024",
-  "revision": 25,
+  "revision": <taskversion>,
   "status": "ACTIVE",
   "inferenceAccelerators": null,
   "proxyConfiguration": null,
@@ -238,15 +175,15 @@
       "fsxWindowsFileServerVolumeConfiguration": null,
       "efsVolumeConfiguration": {
         "transitEncryptionPort": null,
-        "fileSystemId": "fs-402461c2",
+        "fileSystemId": "<efs-filesystem>",
         "authorizationConfig": {
           "iam": "DISABLED",
-          "accessPointId": "fsap-01817d5defea7264d"
+          "accessPointId": "<efs-accesspoint-1>"
         },
         "transitEncryption": "ENABLED",
         "rootDirectory": "/"
       },
-      "name": "qa-server-authorities",
+      "name": "db-mysql-data",
       "host": null,
       "dockerVolumeConfiguration": null
     },
@@ -254,15 +191,15 @@
       "fsxWindowsFileServerVolumeConfiguration": null,
       "efsVolumeConfiguration": {
         "transitEncryptionPort": null,
-        "fileSystemId": "fs-402461c2",
+        "fileSystemId": "<efs-filesystem>",
         "authorizationConfig": {
           "iam": "DISABLED",
-          "accessPointId": "fsap-0861798cebbd27cbe"
+          "accessPointId": "<efs-accesspoint-2>"
         },
         "transitEncryption": "ENABLED",
         "rootDirectory": "/"
       },
-      "name": "db-mysql-data",
+      "name": "qa-server-authorities",
       "host": null,
       "dockerVolumeConfiguration": null
     }
