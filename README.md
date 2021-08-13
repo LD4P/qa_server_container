@@ -125,3 +125,4 @@ QA Server is based on the [Questioning Authority gem](https://github.com/samvera
 
 This document addresses the use of QA Server app for access to linked data authorities.  You can reference Questioning Authorities
 [documentation](https://github.com/samvera/questioning_authority/blob/master/README.md) for more information on the other uses.
+
