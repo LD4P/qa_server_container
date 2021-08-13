@@ -1,60 +1,113 @@
 source 'https://rubygems.org'
+git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-git_source(:github) do |repo_name|
-  repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?("/")
-  "https://github.com/#{repo_name}.git"
+ruby '2.7.3'
+
+# rubocop:disable Bundler/OrderedGems
+## Gems adds by `rails new`
+# Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
+gem 'rails', '~> 5.2.5'
+# Use sqlite3 as the database for Active Record
+gem 'sqlite3'
+# Use Puma as the app server
+gem 'puma', '~> 5.3.2'
+# Use SCSS for stylesheets
+gem 'sass-rails', '~> 5.0'
+# Use Uglifier as compressor for JavaScript assets
+gem 'uglifier', '>= 1.3.0'
+# See https://github.com/rails/execjs#readme for more supported runtimes
+# gem 'mini_racer', platforms: :ruby
+
+# Use CoffeeScript for .coffee assets and views
+gem 'coffee-rails', '~> 4.2'
+# Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
+gem 'turbolinks', '~> 5'
+# Build JSON APIs with ease. Read more: https://github.com/rails/jbuilder
+gem 'jbuilder', '~> 2.5'
+# Use Redis adapter to run Action Cable in production
+# gem 'redis', '~> 4.0'
+# Use ActiveModel has_secure_password
+# gem 'bcrypt', '~> 3.1.7'
+
+# Use ActiveStorage variant
+# gem 'mini_magick', '~> 4.8'
+
+# Use Capistrano for deployment
+# gem 'capistrano-rails', group: :development
+
+# Reduces boot times through caching; required in config/boot.rb
+gem 'bootsnap', '>= 1.1.0', require: false
+
+group :development, :test do
+  # Call 'byebug' anywhere in the code to stop execution and get a debugger console
+  # gem 'byebug', platforms: [:mri, :mingw, :x64_mingw] ### OVERRIDE - defined below to expand availability
 end
 
-gem 'rails', '~> 5.2'
-gem 'dotenv-deployment'
-gem 'dotenv-rails'
+group :development do
+  # Access an interactive console on exception pages or by calling 'console' anywhere in the code.
+  gem 'web-console', '>= 3.3.0'
+  gem 'listen', '>= 3.0.5', '< 3.2'
+  # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
+  gem 'spring'
+  gem 'spring-watcher-listen', '~> 2.0.0'
+end
 
+group :test do
+  # Adds support for Capybara system testing and selenium driver
+  gem 'capybara', '>= 2.15'
+  gem 'selenium-webdriver'
+  # Easy installation and use of chromedriver to run system tests with Chrome
+  gem 'chromedriver-helper'
+end
+
+# Windows does not include zoneinfo files, so bundle the tzinfo-data gem
+gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+
+## Gems manually added to for qa and qa_server engines
 # Required gems for QA and linked data access
 gem 'qa_server', '~> 7.5'
 gem 'qa', '~> 5.5'
 gem 'linkeddata'
 
+## Gems added for application customization
+# support for .env file
+gem 'dotenv-rails'
+
 # Database
 gem 'mysql2'
 # gem 'pg'
 
-
-# Other gems
-gem 'coffee-rails', '~> 4.2'
-gem 'concurrent-ruby'
-gem 'jbuilder', '~> 2.5'
+# additional app dependencies based on our specific setup
+gem 'swagger-docs'
 gem 'lograge'
-gem 'puma', '~> 4.3'
-gem 'sass-rails', '~> 5.0'
-gem 'turbolinks', '~> 5'
-gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby] # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem 'uglifier', '>= 1.3.0'
 
-group :development, :test do
-  gem 'byebug'
-  gem 'coveralls', require: false
-  gem 'database_cleaner'
-  gem 'factory_bot_rails', '~> 4.4', require: false
-  gem 'faker'
-  gem 'listen'
-  gem 'rails-controller-testing'
+group :development, :integration, :test do
+  gem 'byebug' # debugging
+  # gem 'database_cleaner'
+end
+
+group :development, :integration do
+  gem 'xray-rails' # overlay showing which files are contributing to the UI
 end
 
 group :development do
   gem 'better_errors' # add command line in browser when errors
   gem 'binding_of_caller' # deeper stack trace used by better errors
-  gem 'bixby', '~> 1.0.0' # style guide enforcement with rubocop
-  gem 'rubocop'
+  gem 'bixby', '~> 3.0' # style guide enforcement with rubocop
   gem 'rubocop-checkstyle_formatter', require: false
-  gem 'spring' # Spring speeds up development by keeping your application running in the background.
-  gem 'web-console', '~> 3.0' # access to IRB console on exception pages
-  gem 'xray-rails'
 end
 
 group :test do
-  gem 'rspec-rails'
-  gem 'rspec-activemodel-mocks'
-  gem 'sqlite3'
+  gem 'capybara-screenshot', '~> 1.0'
+  gem 'coveralls', require: false
+  gem 'factory_bot', '~> 4.4'
+  gem 'factory_bot_rails', '~> 4.4', require: false
+  gem 'faker'
+  gem 'rails-controller-testing'
+  gem 'rspec-activemodel-mocks', '~> 1.0'
+  gem 'rspec-its', '~> 1.1'
+  gem 'rspec-rails', '~> 3.1'
+  gem 'rspec_junit_formatter'
+  gem 'webdrivers', '~> 4.4'
+  gem 'webmock'
 end
-
-gem 'swagger-docs'

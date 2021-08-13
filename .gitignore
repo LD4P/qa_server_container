@@ -16,15 +16,12 @@
 /tmp/*
 !/log/.keep
 !/tmp/.keep
-rails.log
-solr.log
-fedora.log
-redis.log
-script/log
+*.DS_Store
 
 /node_modules
 /yarn-error.log
 
+# Ignore Byebug command history file.
 .byebug_history
 
 # Ignore vendor/cache
@@ -45,11 +42,8 @@ script/log
 # shows the template being rendered in the html source
 config/initializers/renderer.rb
 
-# ignore jetty
-jetty
-
-# ignore local coverage
-coverage
+# Local coveralls reports
+/coverage
 
 # ignore rubocop reports
 reports
@@ -67,6 +61,7 @@ reports
 .env
 .env.*
 !.env.example
+!.env.circleci
 
 # Ignore generated gruff graphs
 app/assets/images/qa_server/charts/*.png
