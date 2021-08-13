@@ -1,4 +1,4 @@
-ARG RUBY_VERSION=2.5.8
+ARG RUBY_VERSION=2.7.3
 FROM ruby:$RUBY_VERSION-alpine
 
 ## Install dependencies:
