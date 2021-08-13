@@ -36,7 +36,7 @@ services:
       - MYSQL_USER=${DATABASE_RAILS_USER}
       - MYSQL_PASSWORD=${DATABASE_RAILS_USER_PW}
     ports:
-      - "${DATABASE_PORT}:3306"
+      - "3306:3306"
     volumes:
       - db-mysql-data:/var/lib/mysql/data
 
