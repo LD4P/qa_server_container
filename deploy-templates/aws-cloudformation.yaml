@@ -2,12 +2,11 @@ AWSTemplateFormatVersion: "2010-09-09"
 Description: >
   1. Make a copy of parameters.env.example and rename it to parameters.env, then populate it with the values appropriate to your environment. CloudFormation will read those values from the file if you pass it on the command line when you create or update the stack. See the parameter definitions below for full instructions.
   2. Navigate to the directory that contains these files and run the following aws cli command:
-  aws cloudformation create-stack --stack-name qa-server-with-cluster \
+  aws cloudformation create-stack --stack-name qa-server \
   --template-body file://./aws-cloudformation.yaml \
-  --parameters file://./parameters.env --capabilities CAPABILITY_NAMED_IAM
+  --parameters file://./parameters-copy.env --capabilities CAPABILITY_NAMED_IAM \
+  --profile qa-useer --role-arn arn:aws:iam::<your_account_id>:role/qa-role
   3. You will need to validate the ACM certificate after the stack has been created, by creating the DNS record that will appear in the CloudFormation and ACM consoles.
-  TODO: Create a prerequisites.yml template that will spin up 1. the bucket, 2. the EFS share and 3. both access points, and output the values needed for your parameters.env file
-  MAYBE: Build a CI/CD that leverages all this templating and reloads your container image when you push changes to the git repo?
   
 Parameters:
   AWSVpcId:
@@ -48,7 +47,7 @@ Parameters:
   DomainName:
     Type: String
     Default: ''
-    Description: Domain name to use for the public facing service. This is only used to provision the ACM certificate for the load balancer to serve secure connections. If this is not desired, the certificate resource can be removed from this template, along with the load balancer listener for port 443 that requires the certificate.
+    Description: Domain name to use for the public facing service. This is only used to provision the ACM certificate for the load balancer to serve secure connections. If this is not desired, the certificate resource can be removed from this template, along with the load balancer listener for port 443 that requires the certificate. If this domain is hosted in Route 53, nothing need be done to validate the domain. If it is not hosted in Route 53, you will need to validate the domain by creating a CNAME record with a unique value. You will find the value in the output of this template.
   InstanceType:
     Description: EC2 instance type for the cluster. This is recommended to be a type with at least 2 CPUs and 8 GiB of RAM, but you can change it here if you need to.
     Type: String
@@ -125,9 +124,6 @@ Resources:
               Protocol: tcp
               ContainerPort: 3306
       Cpu: 1024
-# We will want to create this role for the user, and we could
-# use this to wire up the S3 bucket access piece by creating this role.
-# Is is possible to create the bucket as well?
       ExecutionRoleArn: !GetAtt TaskRole.Arn
       Memory: 1024
       NetworkMode: bridge
@@ -139,7 +135,6 @@ Resources:
           EFSVolumeConfiguration:
             FilesystemId: !Ref VolumeId
             AuthorizationConfig: 
-              Iam: DISABLED
               AccessPointId: !Ref AuthorityAccessPointId
             RootDirectory: "/"
             TransitEncryption: ENABLED
@@ -147,16 +142,9 @@ Resources:
           EFSVolumeConfiguration:
             FilesystemId: !Ref VolumeId
             AuthorizationConfig: 
-              Iam: DISABLED
               AccessPointId: !Ref DatabaseAccessPointId
             RootDirectory: "/"
             TransitEncryption: ENABLED
-##########
-# Now we're getting into creating a brand new cluster. This requires creating:
-#   a launch configuration
-#   an auto scaling group that uses the launch C
-#   a capacity provider that uses the ASG
-#   a cluster that uses the CP
   CloudwatchLogGroup:
     Type: AWS::Logs::LogGroup
     Properties: 
@@ -165,14 +153,14 @@ Resources:
   EcsCluster:
     Type: AWS::ECS::Cluster
     Properties: 
-      ClusterName: qa-server-cluster
+      ClusterName: !Join ["", [!Ref AWS::StackName, "-cluster"]]
   Service:
     Type: AWS::ECS::Service
     DependsOn: 
       - Listener443
       - Listener80
     Properties: 
-      Cluster: "qa-server-cluster"
+      Cluster: !Join ["", [!Ref AWS::StackName, "-cluster"]]
       DeploymentConfiguration: 
         MaximumPercent: 200
         MinimumHealthyPercent: 100
@@ -217,7 +205,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties: 
       GroupDescription: Security Group to attach to the service load balancer
-      GroupName: !Join ["", [!Ref AWS::StackName, "-qa-server-service-group"]]
+      GroupName: !Join ["", [!Ref AWS::StackName, "-service-group"]]
       VpcId: !Ref AWSVpcId
   SecurityGroupHTTPingress:
     Type: AWS::EC2::SecurityGroupIngress
@@ -239,7 +227,7 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties: 
       GroupDescription: Security Group to attach to the container instances
-      GroupName: !Join ["", [!Ref AWS::StackName, "-qa-server-instance-group"]]
+      GroupName: !Join ["", [!Ref AWS::StackName, "-instance-group"]]
       VpcId: !Ref AWSVpcId
   SecurityGroupEgressCI:
     Type: AWS::EC2::SecurityGroupEgress
@@ -302,7 +290,7 @@ Resources:
       HealthyThresholdCount: 5
       Matcher:
         HttpCode: 200
-      Name: !Join ["", [!Ref TaskDefinitionName, "-3000"]]
+      Name: !Join ["", [!Ref AWS::StackName, "-3000"]]
       Port: 3000
       Protocol: HTTP
       UnhealthyThresholdCount: 2
@@ -350,7 +338,6 @@ Resources:
       SecurityGroups: [!Ref 'SecurityGroupCI', !Ref 'SecurityGroupLB']
       InstanceType: !Ref 'InstanceType'
       IamInstanceProfile: !Ref 'EC2InstanceProfile'
-      KeyName: 'cul-admin'
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
@@ -460,7 +447,7 @@ Outputs:
   Cluster:
     Value: !Ref 'EcsCluster'
   LoadBalancer:
-    Description: Your Load Balancer's URL
+    Description: Your Load Balancer's URL. Create a DNS record for {!Ref DomainName} that points to this location.
     Value: !Join ['', [!GetAtt [LoadBalancer, DNSName]]]
   TaskDefinition:
     Value: !Ref 'TaskDefinition'
