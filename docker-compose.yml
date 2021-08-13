@@ -2,7 +2,7 @@
 # rm .qa_server_app/config/database.yml # use ENV for database configuration
 # docker-compose build
 # docker-compose up app
-version: '3.5'
+version: '3.2'
 services:
   app: &app
     build:
@@ -15,9 +15,10 @@ services:
     env_file:
       - .env
     volumes:
-      - .:/app/ld4p/qa_server-webapp # use for debugging
-#      - app_src:/app/ld4p/qa_server-webapp # use when not debugging
-      - ${AUTHORITIES_PATH}:/app/ld4p/qa_server-webapp/config/authorities
+#      - .:/app/ld4p/qa_server-webapp # use for debugging
+      - app_src:/app/ld4p/qa_server-webapp # use when not debugging
+#      - ${AUTHORITIES_PATH}:/app/ld4p/qa_server-webapp/config/authorities # use to setup path to authorities outside app
+      - authorities:/app/ld4p/qa_server-webapp/config/authorities # use for commits with to allow cci to run
       - rails-public:/app/ld4p/qa_server-webapp/public
       - rails-tmp:/app/ld4p/qa_server-webapp/tmp
       - gems:/usr/local/bundle
@@ -36,12 +37,13 @@ services:
       - MYSQL_USER=${DATABASE_RAILS_USER}
       - MYSQL_PASSWORD=${DATABASE_RAILS_USER_PW}
     ports:
-      - "3306:3306"
+      - "${DATABASE_PORT}:3306"
     volumes:
       - db-mysql-data:/var/lib/mysql/data
 
 volumes:
-#  app_src: # comment out when debugging and using . volume for qa_server-webapp
+  app_src: # comment out when debugging and using . volume for qa_server-webapp
+  authorities: # comment out when running locally
   db-mysql-data:
   gems:
   rails-public:

@@ -61,6 +61,7 @@ reports
 .env
 .env.*
 !.env.example
+!.env.circleci
 
 # Ignore generated gruff graphs
 app/assets/images/qa_server/charts/*.png
