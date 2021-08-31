@@ -52,6 +52,10 @@ Parameters:
     Description: EC2 instance type for the cluster. This is recommended to be a type with at least 2 CPUs and 8 GiB of RAM, but you can change it here if you need to.
     Type: String
     Default: m5.large
+  KeyPair:
+    Description: The name of an existing EC2 key pair that can be used to SSH to your cluster instances for debugging or troubleshooting. This is entirely optional and your service will function without it. Without a key pair you will not be able to log in to your cluster's EC2 instances via SSH. This key pair must already exist in your account, and you should have a copy of the public key downloaded to your local host.
+    Type: String
+    Default: ''
 Mappings:
   AWSRegionToAMI:
     Description: This list of ECS-optimized AMIs will change over time and will need to be maintained. You can get the most recent AMI for your current region with the command `aws ssm get-parameters --names /aws/service/ecs/optimized-ami/amazon-linux-2/recommended`. If your region is known and does not change, the others can be ignored or removed safely.
@@ -338,6 +342,7 @@ Resources:
       SecurityGroups: [!Ref 'SecurityGroupCI', !Ref 'SecurityGroupLB']
       InstanceType: !Ref 'InstanceType'
       IamInstanceProfile: !Ref 'EC2InstanceProfile'
+      KeyName: !Ref 'KeyPair'
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash -xe
