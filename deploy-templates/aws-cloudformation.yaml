@@ -4,15 +4,15 @@ Description: >
   2. Navigate to the directory that contains these files and run the following aws cli command:
   aws cloudformation create-stack --stack-name qa-server \
   --template-body file://./aws-cloudformation.yaml \
-  --parameters file://./parameters-copy.env --capabilities CAPABILITY_NAMED_IAM \
-  --profile qa-useer --role-arn arn:aws:iam::<your_account_id>:role/qa-role
+  --parameters file://./parameters.env --capabilities CAPABILITY_NAMED_IAM \
+  --profile qa-user --role-arn arn:aws:iam::<your_account_id>:role/qa-role
   3. You will need to validate the ACM certificate after the stack has been created, by creating the DNS record that will appear in the CloudFormation and ACM consoles.
   
 Parameters:
   AWSVpcId:
     Type: String
     Default: ''
-    Description: Your AWS VPC ID. It should look like vpc-1a2b3c4d. Required for load balancer configuration and security group rules.
+    Description: Your AWS VPC ID. It should look like vpc-1a2b3c4d. This is required for load balancer configuration and security group rules.
   SubnetIds:
     Type: List<AWS::EC2::Subnet::Id>
     Description: Select two subnets in your selected VPC. The values must be separated by commas.
@@ -49,7 +49,7 @@ Parameters:
     Default: ''
     Description: Domain name to use for the public facing service. This is only used to provision the ACM certificate for the load balancer to serve secure connections. If this is not desired, the certificate resource can be removed from this template, along with the load balancer listener for port 443 that requires the certificate. If this domain is hosted in Route 53, nothing need be done to validate the domain. If it is not hosted in Route 53, you will need to validate the domain by creating a CNAME record with a unique value. You will find the value in the output of this template.
   InstanceType:
-    Description: EC2 instance type for the cluster. This is recommended to be a type with at least 2 CPUs and 8 GiB of RAM, but you can change it here if you need to.
+    Description: EC2 instance type for the cluster. This is recommended to be a type with at least 2 CPUs and 8 GiB of RAM, but you can change it here if you need to. The type should be twice as large to run a production service with a full set of authorities.
     Type: String
     Default: m5.large
   KeyPair:
@@ -58,7 +58,6 @@ Parameters:
     Default: ''
 Mappings:
   AWSRegionToAMI:
-    Description: This list of ECS-optimized AMIs will change over time and will need to be maintained. You can get the most recent AMI for your current region with the command `aws ssm get-parameters --names /aws/service/ecs/optimized-ami/amazon-linux-2/recommended`. If your region is known and does not change, the others can be ignored or removed safely.
     us-east-1:
       AMIID: ami-08a29dcf20b8fea61
     us-east-2:
@@ -84,7 +83,7 @@ Resources:
       Family: !Ref TaskDefinitionName
       ContainerDefinitions: 
         - Name: 'qa-server-app'
-          Cpu: 0
+          Cpu: 1020
           EnvironmentFiles: 
             - Type: s3
               Value: !Join ["", ["arn:aws:s3:::", !Ref S3BucketName, "/", !Ref EnvFileName]]
@@ -98,7 +97,7 @@ Resources:
               awslogs-group: !Join ["", ["/ecs/", !Ref AWS::StackName, "-lb"]]
               awslogs-region: us-east-1
               awslogs-stream-prefix: ecs
-          MemoryReservation: 512
+          MemoryReservation: 4096
           MountPoints: 
             - SourceVolume: qa-server-authorities
               ContainerPath: /app/ld4p/qa_server-webapp/config/authorities
@@ -107,7 +106,7 @@ Resources:
               Protocol: tcp
               ContainerPort: 3000
         - Name: 'qa-mariadb'
-          Cpu: 0
+          Cpu: 512
           EnvironmentFiles: 
             - Type: s3
               Value: !Join ["", ["arn:aws:s3:::", !Ref S3BucketName, "/", !Ref EnvFileName]]
@@ -119,7 +118,7 @@ Resources:
               awslogs-group: !Join ["", ["/ecs/", !Ref AWS::StackName, "-lb"]]
               awslogs-region: us-east-1
               awslogs-stream-prefix: ecs
-          MemoryReservation: 512
+          MemoryReservation: 1024
           MountPoints: 
             - SourceVolume: db-mysql-data
               ContainerPath: /var/lib/mysql/data
@@ -127,9 +126,9 @@ Resources:
             - HostPort: 3306
               Protocol: tcp
               ContainerPort: 3306
-      Cpu: 1024
+      Cpu: 1600
       ExecutionRoleArn: !GetAtt TaskRole.Arn
-      Memory: 1024
+      Memory: 6144
       NetworkMode: bridge
       RequiresCompatibilities: 
         - EC2

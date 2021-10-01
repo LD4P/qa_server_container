@@ -31,8 +31,9 @@ When the prerequisites template runs successfully, it will provision the necessa
 
 To upload authority files to the authority EFS access point, use the following commands to mount the authority EFS access point as a directory on an EC2 Linux server. 
 ```
-sudo mkdir /qa-server
-sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport *EFSFilesystemId*.efs.*aws-region*.amazonaws.com:/authorities /qa-server
+sudo mkdir /authorities
+sudo yum install -y amazon-efs-utils
+sudo mount -t efs -o tls,accesspoint=*AccessPointID* *EFSFilesystemId*:/ /authorities
 ```
 Once the authority EFS access point is mounted, simply copy one or more authority files to the filesystem. 
 

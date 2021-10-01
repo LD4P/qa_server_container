@@ -20,6 +20,7 @@ Select "Attach existing policies directly" and then click "Create policy". Click
                  "cloudformation:DeleteStack",  
                  "cloudformation:DescribeStackEvents", 
                  "cloudformation:UpdateStack",
+                 "cloudformation:CreateChangeSet",
                  "iam:PassRole"
              ],
              "Resource": "*"
@@ -57,6 +58,7 @@ Use the web console to create an IAM role that the service will assume. First, c
                  "ec2:AuthorizeSecurityGroupIngress",
                  "ec2:DescribeInstances",
                  "ecs:DescribeClusters",
+                 "ecs:DescribeTaskDefinition",
                  "ecs:CreateCluster",
                  "ecs:DeleteCluster",
                  "ecs:RegisterTaskDefinition",
