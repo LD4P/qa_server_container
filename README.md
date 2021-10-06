@@ -4,55 +4,9 @@ This app can be installed using Docker to serve as a Questioning Authority (QA) 
 
 ## Setup
 
-### Setup on localhost
 
-#### Prerequisite
+[Setting up a development environment](https://github.com/LD4P/qa_server_container/wiki/Setting-up-a-development-environment)
 
-* [Docker](https://docs.docker.com/desktop/)
-
-#### Installation Instructions
-
-##### Get code
-
-```
-$ git clone https://github.com/LD4P/qa_server_container.git
-$ cd qa_server_container
-```
-
-##### Setup environment variables
-
-* create a `.env` file by copying `.env.example` and renaming to `.env`
-* edit `.env`
-  * update anything marked CHANGEME
-  * change other environment variables if needed
-  
-##### Setup authority configurations
-
-* determine a path outside the application that can hold the configurations (e.g. `/Users/_YOUR_USER_/docker/volume/authorities`)
-* edit `.env` and set `AUTHORITIES_PATH` to that path
-* create `linked_data` subdirectory
-* copy or create configurations for the authorities you wish to make available
-* create `scenarios` subdirectory under `linked_data` to hold validation tests
-* copy or create validations for each authority
-
-There are a number of pre-configured authorities at [LD4P/linked_data_authorities](https://github.com/LD4P/linked_data_authorities).
-Some of these require a cache of the data.  A few are able to make direct access through the authority provider's API.
-This information is documented at [LD4P/linked_data_authorities](https://github.com/LD4P/linked_data_authorities).
-
-#### To Start the Server
-
-Run app with Docker by executing these commands from the root directory of the app
-
-```
-$ docker-compose build
-$ docker-compose up
-```
-
-#### To Stop the Server
-
-```
-$ docker-compose down
-```
 
 ### Setup on AWS
 
