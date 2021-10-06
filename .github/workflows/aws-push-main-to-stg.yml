@@ -3,36 +3,18 @@
 # ------------------------
 # Outside Configurations
 # ------------------------
-# 1. Create the repository in AWS ECR.
-#      Use naming convention `-dev` (e.g. ld4p/qa_authority_lookup-dev) for dev branch
-#      Use naming convention of no extension (e.g. ld4p/qa_authority_lookup) for main branch
-#
-# 2. Set GitHub Repository Secrets in GitHub application repo (the one defining the image, e.g. ld4p/qa_server_container).
-#    In GitHub repository click: Settings -> Secrets -> New repository secret -> add the following secrets
+#  Set GitHub Repository Secrets in GitHub application repo (the one defining the image, e.g. ld4p/qa_server_container).
+#  In GitHub repository click: Settings -> Secrets -> New repository secret -> add the following secrets
 #      * Name: AWS_ACCESS_KEY_ID
 #        Value: _copy access key from AWS automation user_
 #      * Name: AWS_SECRET_ACCESS_KEY
 #        Value: _copy secret access key from AWS automation user_
-#
-# ------------------------
-# Updates to this Configuration
-# ------------------------
-# 1. Set the branch name
-#    Branch: (choose one) update on -> push -> branches in this config.
-#      * Set to [ dev ] for build of commits to dev branch
-#      * Set to [ main ] for build of commits to main branch
-#
-# 2. Set the ECR_REPOSITORY name
-#      * update jobs -> build -> steps -> step named Build, tag, and push -> env -> ECR_REPOSITORY in this config.
-#      * Set to repository name as created in AWS ECR, for example
-#          ld4p/qa_authority_lookup-dev for [ dev ] branch
-#          ld4p/qa_authority_lookup for [ main ] branch
-#
-name: Push ld4p/qa_server_container image to Amazon ECR as ld4p/qa_authority_lookup-dev
+
+name: Push image of main branch to staging image at Amazon ECR as ld4p/qa_authority_lookup-stg
 
 on:
   push:
-    branches: [ dev ]
+    branches: [ main ]
 
 jobs:
   build:
@@ -45,7 +27,7 @@ jobs:
       run: |
         VER=$(cat VERSION)
         echo "VERSION=$VER" >> $GITHUB_ENV
-        echo "REPOSITORY_NAME=ld4p/qa_authority_lookup-test" >> $GITHUB_ENV
+        echo "REPOSITORY_NAME=ld4p/qa_authority_lookup-stg" >> $GITHUB_ENV
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
