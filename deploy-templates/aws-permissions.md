@@ -131,7 +131,8 @@ Use the web console to create an IAM role that the service will assume. First, c
                  "datasync:DescribeLocationS3",
                  "datasync:DescribeLocationEfs",
                  "datasync:DescribeTask",
-                 "datasync:ListTagsForResource"
+                 "datasync:ListTagsForResource",
+                 "datasync:DeleteTask"
              ],
              "Resource": "*"
          }
