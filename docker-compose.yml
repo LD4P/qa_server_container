@@ -32,12 +32,12 @@ services:
     restart: always
     container_name: ld4p-qa_server-mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=${DATABASE_RAILS_ROOT_PW}
-      - MYSQL_DATABASE=${DATABASE_NAME_PREFIX}_development
-      - MYSQL_USER=${DATABASE_RAILS_USER}
-      - MYSQL_PASSWORD=${DATABASE_RAILS_USER_PW}
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE_NAME_PREFIX}_development
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     ports:
-      - "${DATABASE_PORT}:3306"
+      - "${MYSQL_PORT}:3306"
     volumes:
       - db-mysql-data:/var/lib/mysql/data
 
