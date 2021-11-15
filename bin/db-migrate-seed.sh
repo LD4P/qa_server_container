@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-db-wait.sh "$DATABASE_HOST:$DATABASE_PORT"
+db-wait.sh "$MYSQL_HOST:$MYSQL_PORT"
 
 bundle exec rails db:migrate
 bundle exec rails db:seed
