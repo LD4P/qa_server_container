@@ -4,6 +4,6 @@ en:
     application_version: "0.1.0"
     application_name:  "Authority Lookup Service"
     footer:
-      copyright_html:  "<strong>Copyright &copy; 2018-2020 Cornell</strong> Licensed under the Apache License, Version 2.0"
-      service_html:    A service of <a href="http://www.library.cornell.edu/" class="navbar-link" target="_blank">Cornell University Library</a> and <br /><a href="https://www.slis.uiowa.edu/" class="navbar-link" target="_blank">School of Library and Information Science, University of Iowa</a>.
+      copyright_html:  "<strong>Copyright &copy; 2018-2022 Cornell</strong> Licensed under the Apache License, Version 2.0"
+      service_html:    A service of YOUR INSTITUTION.
       attribution_html: This service is supported by work on <a href="http://ld4p.org" class="navbar-link" target="_blank">Linked Data for Production</a> and <br>  <a href="https://wiki.duraspace.org/x/9xgRBg" class="navbar-link" target="_blank">Linked Data for Production</a> funded by <a href="https://mellon.org/" class="navbar-link" target="_blank">The Andrew W. Mellon Foundation</a>, <br>and by work on Questioning Authority in <a href="http://samvera.org" class="navbar-link" target="_blank">Samvera</a>, an open source community.
