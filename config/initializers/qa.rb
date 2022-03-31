@@ -12,7 +12,7 @@ Qa.config do |config|
 
   # For linked data access, specify default language for sorting and selection.  The default is only used if a language is not
   # specified in the authority's configuration file and not passed in as a parameter.  (e.g. :en, [:en], or [:en, :fr])
-  config.default_language = ENV['DEFAULT_LANGUAGE'].to_sym || :en
+  config.default_language = ENV['DEFAULT_LANGUAGE']&.to_sym || :en
 
   # When true, prevents ldpath requests from making additional network calls.  All values will come from the context graph
   # passed to the ldpath request.
