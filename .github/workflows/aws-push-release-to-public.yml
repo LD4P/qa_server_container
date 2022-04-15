@@ -13,6 +13,7 @@
 name: Push image of release tag to public image at Amazon ECR as ld4p/qa_authority_lookup
 
 on:
+  workflow_dispatch:  # allow for manually running through Actions tab
   release:
     types: [ published ]
 
