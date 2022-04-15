@@ -3,12 +3,7 @@ Description: >
   1. Review the parameters below and ensure that they are appropriate to your environment. Then deploy with this aws cli command:
     aws cloudformation create-stack --stack-name qa-server-prerequisites \
     --template-body file://./aws-prerequisites.yaml \
-    --parameters ParameterKey=S3BucketName,ParameterValue=qa-server-container \
-     ParameterKey=EFSName,ParameterValue=qa-server-filesystem \
-     ParameterKey=EFSAuthoritiesAccessPoint,ParameterValue=qa-server-authorities-ap \
-     ParameterKey=EFSDatabaseAccessPoint,ParameterValue=qa-server-database-ap   \
-     ParameterKey=AWSVpcId,ParameterValue=vpc-5e5cfd3a   \
-     ParameterKey=SubnetIds,ParameterValue="subnet-d7ad4ca1\,subnet-83a890da"
+    --parameters file://./prerequisites.env
   2. The outputs of this template file will be used by the aws-cloudformation.yaml template.
 Parameters:
   AWSVpcId:
@@ -105,6 +100,53 @@ Resources:
         Uid: 0
       RootDirectory: 
         Path: "/db-mysql-data"
+  EfsLocation:
+    Type: AWS::DataSync::LocationEFS
+    Properties:
+      EfsFilesystemArn: !Sub arn:${AWS::Partition}:elasticfilesystem:${AWS::Region}:${AWS::AccountId}:file-system/${Filesystem}
+      Ec2Config:
+        SecurityGroupArns:
+          - !Sub arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:security-group/${NFSSecurityGroup}
+        SubnetArn: !Sub arn:${AWS::Partition}:ec2:${AWS::Region}:${AWS::AccountId}:subnet/${EFSMountTarget2.SubnetId}
+  S3Location:
+    Type: AWS::DataSync::LocationS3
+    Properties:
+      S3BucketArn: !GetAtt Bucket.Arn
+      S3Config:
+        BucketAccessRoleArn: !GetAtt DataSyncRole.Arn
+      S3StorageClass: STANDARD
+  DataSyncRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service: [datasync.amazonaws.com]
+          Action: ['sts:AssumeRole']
+      Policies:
+      - PolicyName: {"Fn::Join": ["", [{"Ref": "AWS::Region"}, "-qa-datasync-role-policy"]]}
+        PolicyDocument:
+          Statement:
+          - Effect: Allow
+            Action: ['s3:GetBucketLocation', 's3:ListBucket', 's3:ListBucketMultipartUploads']
+            Resource: !Sub arn:${AWS::Partition}:s3:::${S3BucketName}
+          - Effect: Allow
+            Action: ['s3:AbortMultipartUpload', 's3:DeleteObject', 's3:GetObject', 's3:ListMultipartUploadParts', 's3:PutObjectTagging', 's3:GetObjectTagging', 's3:PutObject']
+            Resource: !Sub arn:${AWS::Partition}:s3:::${S3BucketName}
+  S3ToEfsTask:
+    Type: AWS::DataSync::Task
+    Properties:
+      Name: 'Copy S3 to EFS'
+      SourceLocationArn: !Ref S3Location
+      DestinationLocationArn: !Ref EfsLocation
+      Schedule:
+        ScheduleExpression: cron(30 * * * ? *)
+      Options:
+        OverwriteMode: 'ALWAYS'
+        PreserveDeletedFiles: 'REMOVE'
+        TransferMode: 'CHANGED'
+
 Outputs:
   S3BucketName:
     Value: !Ref Bucket
@@ -114,4 +156,6 @@ Outputs:
     Value: !Ref AuthorityAccessPoint
   DatabaseAccessPointId:
     Value: !Ref DatabaseAccessPoint
+  S3ToEfsTask:
+    Value: !Ref S3ToEfsTask
     

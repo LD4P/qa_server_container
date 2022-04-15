@@ -8,38 +8,38 @@ default: &default
 
 development:
   <<: *default
-  database: <%= "#{ENV['DATABASE_NAME_PREFIX']}_development" %>
-  username: <%= "#{ENV['DATABASE_RAILS_USER']}" %>
-  password: <%= "#{ENV['DATABASE_RAILS_USER_PW']}" %>
-  host:     <%= "#{ENV['DATABASE_HOST']}" %>
-  pool:     <%= ENV["DATABASE_POOL"] || ENV['RAILS_MAX_THREADS'] || 5 %>
+  database: <%= "#{ENV['MYSQL_DATABASE_NAME_PREFIX']}_development" %>
+  username: <%= "#{ENV['MYSQL_USER']}" %>
+  password: <%= "#{ENV['MYSQL_PASSWORD']}" %>
+  host:     <%= "#{ENV['MYSQL_HOST']}" %>
+  pool:     <%= ENV["MYSQL_POOL"] || ENV['RAILS_MAX_THREADS'] || 5 %>
   timeout: 5000
 
 integration:
   <<: *default
-  database: <%= "#{ENV['DATABASE_NAME_PREFIX']}_integration" %>
-  username: <%= "#{ENV['DATABASE_RAILS_USER']}" %>
-  password: <%= "#{ENV['DATABASE_RAILS_USER_PW']}" %>
-  host:     <%= "#{ENV['DATABASE_HOST']}" %>
-  pool:     <%= ENV["DATABASE_POOL"] || ENV['RAILS_MAX_THREADS'] || 5 %>
+  database: <%= "#{ENV['MYSQL_DATABASE_NAME_PREFIX']}_integration" %>
+  username: <%= "#{ENV['MYSQL_USER']}" %>
+  password: <%= "#{ENV['MYSQL_PASSWORD']}" %>
+  host:     <%= "#{ENV['MYSQL_HOST']}" %>
+  pool:     <%= ENV["MYSQL_POOL"] || ENV['RAILS_MAX_THREADS'] || 5 %>
   timeout: 5000
 
 staging:
   <<: *default
-  database: <%= "#{ENV['DATABASE_NAME_PREFIX']}_staging" %>
-  username: <%= "#{ENV['DATABASE_RAILS_USER']}" %>
-  password: <%= "#{ENV['DATABASE_RAILS_USER_PW']}" %>
-  host:     <%= "#{ENV['DATABASE_HOST']}" %>
-  pool:     <%= ENV["DATABASE_POOL"] || ENV['RAILS_MAX_THREADS'] || 5 %>
+  database: <%= "#{ENV['MYSQL_DATABASE_NAME_PREFIX']}_staging" %>
+  username: <%= "#{ENV['MYSQL_USER']}" %>
+  password: <%= "#{ENV['MYSQL_PASSWORD']}" %>
+  host:     <%= "#{ENV['MYSQL_HOST']}" %>
+  pool:     <%= ENV["MYSQL_POOL"] || ENV['RAILS_MAX_THREADS'] || 5 %>
   timeout: 5000
 
 production:
   <<: *default
-  database: <%= "#{ENV['DATABASE_NAME_PREFIX']}" %>
-  username: <%= "#{ENV['DATABASE_RAILS_USER']}" %>
-  password: <%= "#{ENV['DATABASE_RAILS_USER_PW']}" %>
-  host:     <%= "#{ENV['DATABASE_HOST']}" %>
-  pool:     <%= ENV["DATABASE_POOL"] || ENV['RAILS_MAX_THREADS'] || 5 %>
+  database: <%= "#{ENV['MYSQL_DATABASE_NAME_PREFIX']}" %>
+  username: <%= "#{ENV['MYSQL_USER']}" %>
+  password: <%= "#{ENV['MYSQL_PASSWORD']}" %>
+  host:     <%= "#{ENV['MYSQL_HOST']}" %>
+  pool:     <%= ENV["MYSQL_POOL"] || ENV['RAILS_MAX_THREADS'] || 5 %>
   timeout: 5000
 
 test:

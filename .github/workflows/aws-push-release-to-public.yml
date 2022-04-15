@@ -13,6 +13,7 @@
 name: Push image of release tag to public image at Amazon ECR as ld4p/qa_authority_lookup
 
 on:
+  workflow_dispatch:  # allow for manually running through Actions tab
   release:
     types: [ published ]
 
@@ -26,26 +27,29 @@ jobs:
     - name: Set variables
       run: |
         VER=$(cat VERSION)
+        AREA=public.ecr.aws
+        REGISTRY=u8a1v5x2
+        REPOSITORY=ld4p/qa_authority_lookup
         echo "VERSION=$VER" >> $GITHUB_ENV
-        echo "REPOSITORY_NAME=ld4p/qa_authority_lookup-stg" >> $GITHUB_ENV
+        echo "ECR_AREA=$AREA" >> $GITHUB_ENV
+        echo "REGISTRY_NAME=$REGISTRY" >> $GITHUB_ENV
+        echo "REPOSITORY_NAME=$REPOSITORY" >> $GITHUB_ENV
+        echo "FULL_PATH=$AREA/$REGISTRY/$REPOSITORY" >> $GITHUB_ENV
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v1
+    - name: Login to Public ECR
+      uses: docker/login-action@v1
       with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
-
-    - name: Login to Amazon ECR
-      id: login-ecr
-      uses: aws-actions/amazon-ecr-login@v1
+        registry: ${{ env.ECR_AREA }}
+        username: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        password: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      env:
+        AWS_REGION: us-east-1
 
     - name: Build, tag, and push image to Amazon ECR
       env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: ${{ env.REPOSITORY_NAME }}
+        ECR_FULL_PATH: ${{ env.FULL_PATH }}
         SHA_IMAGE_TAG: ${{ github.sha }}
         VERSION_IMAGE_TAG: ${{ env.VERSION }}
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$SHA_IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:$VERSION_IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
-        docker push -a $ECR_REGISTRY/$ECR_REPOSITORY
+        docker build -t $ECR_FULL_PATH:$SHA_IMAGE_TAG -t $ECR_FULL_PATH:$VERSION_IMAGE_TAG -t $ECR_FULL_PATH:latest .
+        docker push -a $ECR_FULL_PATH

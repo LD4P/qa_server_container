@@ -3,7 +3,7 @@ QaServer.config do |config|
   # Preferred time zone for reporting historical data and performance data
   # @param [String] time zone name
   # @see https://api.rubyonrails.org/classes/ActiveSupport/TimeZone.html for possible values of TimeZone names
-  config.preferred_time_zone_name = 'Eastern Time (US & Canada)'
+  config.preferred_time_zone_name = ENV['PREFERRED_TIME_ZONE_NAME'] || 'Eastern Time (US & Canada)'
 
   # Preferred hour to expire caches related to slow running calculations (e.g. monitoring tests, performance data)
   # @param [Integer] count of hours from midnight (0-23 with 0=midnight)
@@ -18,27 +18,27 @@ QaServer.config do |config|
 
   # Displays a datatable of historical test data when true
   # @param [Boolean] display history datatable when true
-  config.display_historical_datatable = true
+  config.display_historical_datatable = ActiveModel::Type::Boolean.new.cast(ENV['DISPLAY_HISTORICAL_DATA'] || true)
 
   # Historical datatable default time period.
   # @param [Symbol] time period for calculating historical pass/fail (i.e., one of :month, :year, or :all)
-  config.historical_datatable_default_time_period = :year
+  config.historical_datatable_default_time_period = ENV['HISTORICAL_DATA_DEFAULT_TIME_PERIOD']&.to_sym || :year
 
   # Displays a graph of performance test data when true
   # @param [Boolean] display performance graph when true
-  config.display_performance_graph = false
+  config.display_performance_graph = ActiveModel::Type::Boolean.new.cast(ENV['DISPLAY_PERFORMANCE_GRAPH'] || false)
 
   # Displays a datatable of performance test data when true
   # @param [Boolean] display performance datatable when true
-  config.display_performance_datatable = true
+  config.display_performance_datatable = ActiveModel::Type::Boolean.new.cast(ENV['DISPLAY_PERFORMANCE_DATATABLE'] || true)
 
   # Performance graph default time period for all graphs.  All authorities will show the graph for this time period on page load.
   # @param [String] :day, :month, or :year
-  config.performance_graph_default_time_period = :month
+  config.performance_graph_default_time_period = ENV['PERFORMANCE_DATA_DEFAULT_TIME_PERIOD']&.to_sym || :month
 
   # Performance datatable default time period for calculating stats.
   # @param [String] :day, :month, :year, :all
-  config.performance_datatable_default_time_period = :year
+  config.performance_datatable_default_time_period = ENV['PERFORMANCE_DATA_DEFAULT_TIME_PERIOD']&.to_sym || :month
 
   # Max time in milliseconds for y-axis in the performance graphs.
   # @param [Integer] milliseconds
@@ -76,12 +76,12 @@ QaServer.config do |config|
   # Performance data is gathered on every incoming query.  If load is high, this can have a negative performance
   # impact and may need to be suppressed.  Performance stats will not be gathered when this config is true.
   # @param [Boolean] do not gather performance data when true (defaults to false for backward compatibitily)
-  config.suppress_performance_gathering = false
+  config.suppress_performance_gathering = ActiveModel::Type::Boolean.new.cast(ENV['SUPPRESS_PERFORMANCE_LOGGING'] || true)
 
   # Performance data is gathered on every incoming query.  Basic stats are logged from QA.  Full stats are logged
   # by QaServer and can eat up logging realestate.  To suppress the logging of details, set this config to true.
   # @param [Boolean] do not log performance data details when true (defaults to false for backward compatibitily)
-  config.suppress_logging_performance_datails = true
+  config.suppress_logging_performance_details = ActiveModel::Type::Boolean.new.cast(ENV['SUPPRESS_PERFORMANCE_LOGGING'] || true)
 
   # Maximum amount of memory the performance cache can occupy before it is written to the database.
   # @param [Integer] maximum size of performance cache before flushing
@@ -92,13 +92,12 @@ QaServer.config do |config|
   # default levels for Rails loggers (i.e. enabled for development, disabled for production.)
   # config.enable_performance_cache_logging
   # config.disable_performance_cache_logging
+  config.enable_performance_cache_logging if ActiveModel::Type::Boolean.new.cast(ENV['PERFORMANCE_CACHE_LOGGING_ENABLED'] || false)
 
   # Enable/Disable logging of monitoring process
   # Uncomment one of the lines below to enable or disable monitoring process logging.  NOTE: By default, loggers follow the
   # default levels for Rails loggers (i.e. enabled for development, disabled for production.)
   # config.enable_monitor_status_logging
   # config.disable_monitor_status_logging
-
-  config.enable_monitor_status_logging if ENV['MONITOR_STATUS_LOGGING_ENABLED']
-  config.enable_performance_cache_logging if ENV['PERFORMANCE_CACHE_LOGGING_ENABLED']
+  config.enable_monitor_status_logging if ActiveModel::Type::Boolean.new.cast(ENV['MONITOR_STATUS_LOGGING_ENABLED'] || false)
 end

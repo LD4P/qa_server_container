@@ -2,8 +2,7 @@ Qa.config do |config|
   # When enabled, CORS headers will be added to the responses for search and show.  `OPTIONS` method will also be supported.
   # Uncomment one of the lines below to enable or disable CORS headers.  This configuration defaults to disabled when not set.
   # More information on CORS headers at: https://fetch.spec.whatwg.org/#cors-protocol
-  config.enable_cors_headers
-  # config.disable_cors_headers
+  ENV['ENABLE_CORS_HEADERS'] ? config.enable_cors_headers : config.disable_cors_headers
 
   # Provide a token that allows reloading of linked data authorities through the controller
   # action '/reload/linked_data/authorities?auth_token=YOUR_AUTH_TOKEN_DEFINED_HERE' without
@@ -13,7 +12,7 @@ Qa.config do |config|
 
   # For linked data access, specify default language for sorting and selection.  The default is only used if a language is not
   # specified in the authority's configuration file and not passed in as a parameter.  (e.g. :en, [:en], or [:en, :fr])
-  config.default_language = :en
+  config.default_language = ENV['DEFAULT_LANGUAGE']&.to_sym || :en
 
   # When true, prevents ldpath requests from making additional network calls.  All values will come from the context graph
   # passed to the ldpath request.
@@ -27,5 +26,5 @@ Qa.config do |config|
   # IP data including IP address, city, state, and country will be logged with each request.
   # When false, IP data is logged
   # When true, IP data will not be logged (default for backward compatibility)
-  config.suppress_ip_data_from_log = false
+  config.suppress_ip_data_from_log = ActiveModel::Type::Boolean.new.cast(ENV['SUPPRESS_IP_DATA_FROM_LOG']) || true
 end
