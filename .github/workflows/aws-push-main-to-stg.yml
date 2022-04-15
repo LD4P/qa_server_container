@@ -13,6 +13,7 @@
 name: Push image of main branch to staging image at Amazon ECR as ld4p/qa_authority_lookup-stg
 
 on:
+  workflow_dispatch:  # allow for manually running through Actions tab
   push:
     branches: [ main ]
 
