@@ -1,3 +1,7 @@
+Release v2.0.1 (2022-04-20)
+
+* update dependencies
+
 Release v2.0.0 (2022-04-15)
 
 * update to ruby 2.7.6
