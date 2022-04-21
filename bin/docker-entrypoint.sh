@@ -4,7 +4,8 @@
 echo '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~'
 echo '-----------------------  RUNNING ENTRY POINT  -----------------------'
 echo '====================================================================='
-echo "Running qa_server_container image for version: $(< ./VERSION)"
+echo "Running qa_server_container image for version: "
+echo "    2021-04-02 39411ba08e97f3b7133db7d9143af255d49e5bea"
 
 set -e
 
