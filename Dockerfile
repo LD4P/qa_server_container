@@ -22,7 +22,7 @@ RUN apk add --update --no-cache \
 
 WORKDIR /app/ld4p/qa_server-webapp
 
-RUN gem install bundler:2.2.17
+RUN gem install bundler:2.1.4
 
 ENV PATH="/app/ld4p/qa_server-webapp:$PATH"
 ENV RAILS_ROOT="/app/ld4p/qa_server-webapp"
