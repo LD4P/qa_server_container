@@ -16,7 +16,6 @@
 /coverage/*
 /db/*.sqlite3
 /log/*.log
-/public/assets
 /spec/*
 /tmp/*
 /vendor/*
