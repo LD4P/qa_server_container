@@ -1,4 +1,4 @@
-ARG RUBY_VERSION=2.7.3
+ARG RUBY_VERSION=3.1.2
 FROM ruby:$RUBY_VERSION-alpine
 
 ## Install dependencies:
@@ -28,8 +28,15 @@ ENV PATH="/app/ld4p/qa_server-webapp:$PATH"
 ENV RAILS_ROOT="/app/ld4p/qa_server-webapp"
 
 COPY Gemfile Gemfile.lock ./
+
 RUN gem update --system
-RUN bundle install
+
+## TEMPORARY TO UPDATE RAILS
+## Remove this after updating qa_server with new rails version,
+## and uncomment RUN bundle install
+COPY qa_server /tmp/qa_server
+RUN bundle config --local path /tmp/qa_server && bundle install
+#RUN bundle install
 
 COPY . .
 RUN bundle exec rake assets:precompile
