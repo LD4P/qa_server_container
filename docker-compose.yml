@@ -28,7 +28,7 @@ services:
       - mysql
 
   mysql:
-    image: mariadb
+    image: mariadb:10.6 # Not specifying version causes a runtime error: "undefined method `encoding' for -0.0:BigDecimal"
     restart: always
     container_name: ld4p-qa_server-mysql
     environment:
