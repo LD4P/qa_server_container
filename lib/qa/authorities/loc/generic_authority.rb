@@ -47,10 +47,11 @@ module Qa::Authorities
     private
 
       # Reformats the data received from the LOC service
+      # Filters for id uniqueness
       def parse_authority_response
         @raw_response.select { |response| response[0] == "atom:entry" }.map do |response|
           loc_response_to_qa(response_to_struct(response))
-        end
+        end.uniq { |result| result["id"] }
       end
 
       # Converts most of the atom data into an OpenStruct object.
