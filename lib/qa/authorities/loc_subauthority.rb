@@ -1,6 +1,6 @@
 # Overrides loc authority from qa gem to handle rdftypes for subauthorities
 
-module Qa::Authorities::LocSubauthority
+module Qa::Authorities::LocSubauthority # rubocop:disable Metrics/ModuleLength
   def get_url_for_authority(authority)
     if authorities.include?(authority) then authority_base_url
     elsif vocabularies.include?(authority) then vocab_base_url
@@ -25,7 +25,7 @@ module Qa::Authorities::LocSubauthority
       "genreForms",
       "names",
       "performanceMediums",
-      "subjects",
+      "subjects"
     ]
   end
 
@@ -96,7 +96,7 @@ module Qa::Authorities::LocSubauthority
       "rbmsrel",
       "relationship",
       "relators",
-      "resourceComponents",
+      "resourceComponents"
     ]
   end
 
@@ -143,19 +143,19 @@ module Qa::Authorities::LocSubauthority
 
   private
 
-    def vocab_base_url
-      "cs%3Ahttp%3A%2F%2Fid.loc.gov%2Fvocabulary%2F"
-    end
+  def vocab_base_url
+    "cs%3Ahttp%3A%2F%2Fid.loc.gov%2Fvocabulary%2F"
+  end
 
-    def authority_base_url
-      "cs%3Ahttp%3A%2F%2Fid.loc.gov%2Fauthorities%2F"
-    end
+  def authority_base_url
+    "cs%3Ahttp%3A%2F%2Fid.loc.gov%2Fauthorities%2F"
+  end
 
-    def datatype_base_url
-      "cs%3Ahttp%3A%2F%2Fid.loc.gov%2Fdatatypes%2F"
-    end
+  def datatype_base_url
+    "cs%3Ahttp%3A%2F%2Fid.loc.gov%2Fdatatypes%2F"
+  end
 
-    def vocab_preservation_base_url
-      "cs%3Ahttp%3A%2F%2Fid.loc.gov%2Fvocabulary%2Fpreservation%2F"
-    end
+  def vocab_preservation_base_url
+    "cs%3Ahttp%3A%2F%2Fid.loc.gov%2Fvocabulary%2Fpreservation%2F"
+  end
 end
