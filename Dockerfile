@@ -1,5 +1,6 @@
 ARG RUBY_VERSION=3.1.2
 FROM ruby:$RUBY_VERSION-alpine
+ARG BUNDLER_VERSION=2.3.7
 
 ## Install dependencies:
 ## - build-base: To ensure certain gems can be compiled
@@ -9,6 +10,7 @@ FROM ruby:$RUBY_VERSION-alpine
 ## - tzdata: add time zone support
 ## - mariadb-dev: To allow use of MySQL2 gem
 ## - imagemagick: for image processing
+## - gcompat: to avoid architecture-specific incompatibitilies
 RUN apk add --update --no-cache \
       bash \
       build-base \
@@ -17,12 +19,13 @@ RUN apk add --update --no-cache \
       sqlite-dev \
       tzdata \
       mariadb-dev \
-      imagemagick6-dev imagemagick6-libs
+      imagemagick6-dev imagemagick6-libs \
+      gcompat
 
 
 WORKDIR /app/ld4p/qa_server-webapp
 
-RUN gem install bundler:2.1.4
+RUN gem install bundler:${BUNDLER_VERSION}
 
 ENV PATH="/app/ld4p/qa_server-webapp:$PATH"
 ENV RAILS_ROOT="/app/ld4p/qa_server-webapp"
