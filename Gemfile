@@ -8,7 +8,7 @@ ruby '3.1.2'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 7.0.8'
 # Use sqlite3 as the database for Active Record
-gem 'sqlite3'
+gem 'sqlite3','~> 1.4.4'
 # Use Puma as the app server
 gem 'puma', '>= 5.6.4', '~>6.4.0'
 # Use SCSS for stylesheets
@@ -65,16 +65,7 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 ## Gems manually added to for qa and qa_server engines
 # Required gems for QA and linked data access
-# gem 'qa_server', '~> 7.5'
-
-# TEMPORARY TO UPDATE RAILS
-# Remove these two qa_server entries after updating qa_server with new rails version.
-# First for building in Docker:
-gem 'qa_server', path: '/tmp/qa_server'
-# Next line for building as a standard Rails project sans Docker.
-# This assumes that the remote qa_server is a subdirectory of the main project (which makes
-# things so much easier when we are using Docker).
-# gem 'qa_server', path: 'qa_server'
+gem 'qa_server', git: "https://github.com/LD4P/qa_server.git", branch: 'update_rails'
 gem 'qa', '~> 5.10'
 gem 'linkeddata'
 gem 'psych', '~> 5.1'
