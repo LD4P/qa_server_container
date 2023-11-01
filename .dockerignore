@@ -10,7 +10,6 @@
 /.git
 /.gitignore
 /.rspec
-/.rubocop*
 /.qa_server_app
 
 /coverage/*
