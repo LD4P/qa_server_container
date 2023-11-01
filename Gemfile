@@ -8,7 +8,7 @@ ruby '3.1.2'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '~> 7.0.8'
 # Use sqlite3 as the database for Active Record
-gem 'sqlite3','~> 1.4.4'
+gem 'sqlite3', '~> 1.4.4'
 # Use Puma as the app server
 gem 'puma', '>= 5.6.4', '~>6.4.0'
 # Use SCSS for stylesheets
@@ -99,7 +99,7 @@ end
 group :development do
   gem 'better_errors' # add command line in browser when errors
   gem 'binding_of_caller' # deeper stack trace used by better errors
-  gem 'bixby', '~> 3.0' # style guide enforcement with rubocop
+  gem 'bixby', '~> 5.0' # style guide enforcement with rubocop
   gem 'rubocop-checkstyle_formatter', require: false
 end
 
