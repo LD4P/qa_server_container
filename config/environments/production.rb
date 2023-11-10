@@ -90,4 +90,8 @@ Rails.application.configure do
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
+
+  # Use lograge to tame rails logs
+  config.lograge.enabled = true
+  config.lograge.base_controller_class = ['ActionController::API', 'ActionController::Base']
 end
