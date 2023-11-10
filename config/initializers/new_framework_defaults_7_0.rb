@@ -101,7 +101,6 @@
 # When you're ready to change format, add this to `config/application.rb` (NOT this file):
 #  config.active_support.cache_format_version = 7.0
 
-
 # Cookie serializer: 2 options
 #
 # If you're upgrading and haven't set `cookies_serializer` previously, your cookie serializer
