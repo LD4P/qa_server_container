@@ -4,7 +4,7 @@ module Qa::Authorities
   # http://www.oclc.org/developer/develop/web-services/fast-api/assign-fast.en.html
   class Wikidata::GenericAuthority < Base
     attr_reader :subauthority
-    def initialize(subauthority)
+    def initialize(subauthority) # rubocop:disable Lint/MissingSuper
       @subauthority = subauthority
     end
 

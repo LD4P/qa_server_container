@@ -4,7 +4,7 @@
 module Qa::Authorities
   class Loc::GenericAuthority < Base
     attr_reader :subauthority
-    def initialize(subauthority)
+    def initialize(subauthority) # rubocop:disable Lint/MissingSuper
       @subauthority = subauthority
     end
 
