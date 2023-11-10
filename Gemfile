@@ -65,7 +65,7 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 ## Gems manually added to for qa and qa_server engines
 # Required gems for QA and linked data access
-gem 'qa_server', git: "https://github.com/LD4P/qa_server.git", branch: 'update_rails'
+gem 'qa_server', git: 'https://github.com/LD4P/qa_server.git', tag: 'v8.0'
 gem 'qa', '~> 5.10'
 gem 'linkeddata'
 gem 'psych', '~> 5.1'
