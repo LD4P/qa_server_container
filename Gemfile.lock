@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/LD4P/qa_server.git
-  revision: 6476f63031bb0ecae498bb421e8ce2c8a750aa69
-  branch: update_rails
+  revision: af1f6509919b07b188a4714937aa33456614bf57
+  tag: v8.0
   specs:
     qa_server (8.0.0)
       gruff
@@ -144,7 +144,7 @@ GEM
     crack (0.4.5)
       rexml
     crass (1.0.6)
-    date (3.3.3)
+    date (3.3.4)
     debug_inspector (1.1.0)
     deprecation (1.1.0)
       activesupport
@@ -277,12 +277,12 @@ GEM
     mysql2 (0.5.5)
     net-http-persistent (4.0.2)
       connection_pool (~> 2.2)
-    net-imap (0.4.3)
+    net-imap (0.4.4)
       date
       net-protocol
     net-pop (0.1.2)
       net-protocol
-    net-protocol (0.2.1)
+    net-protocol (0.2.2)
       timeout
     net-smtp (0.4.0)
       net-protocol
@@ -311,7 +311,7 @@ GEM
       nokogiri (~> 1.6)
       rails (>= 5.0, < 7.1)
       rdf
-    racc (1.7.2)
+    racc (1.7.3)
     rack (2.2.8)
     rack-test (2.1.0)
       rack (>= 1.3)
@@ -546,7 +546,7 @@ GEM
       tins (~> 1.0)
     thor (1.3.0)
     tilt (2.3.0)
-    timeout (0.4.0)
+    timeout (0.4.1)
     tins (1.32.1)
       sync
     turbolinks (5.2.1)
