@@ -1,9 +1,9 @@
 GIT
   remote: https://github.com/LD4P/qa_server.git
-  revision: af1f6509919b07b188a4714937aa33456614bf57
-  tag: v8.0
+  revision: e3ca6e238ec2630a5bfdd92ddc2ff2b906f964c4
+  tag: v8.0.1
   specs:
-    qa_server (8.0.0)
+    qa_server (8.0.1)
       gruff
       rails (~> 7.0)
       sass-rails (~> 5.0)
