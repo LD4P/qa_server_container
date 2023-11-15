@@ -67,7 +67,7 @@ gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 # Required gems for QA and linked data access
 # NOTE: We need to update the published RubyGems version of qa_server with the 8.0 release. Until
 # then, the next entry is set to use the GitHub repo and tag instead.
-gem 'qa_server', git: 'https://github.com/LD4P/qa_server.git', tag: 'v8.0'
+gem 'qa_server', git: 'https://github.com/LD4P/qa_server.git', tag: 'v8.0.1'
 gem 'qa', '~> 5.10'
 gem 'linkeddata'
 gem 'psych', '~> 5.1'
