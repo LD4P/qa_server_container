@@ -58,18 +58,9 @@ module Qa::Authorities
     # @note WARNING: If this is moved to QA, it should NOT return json with results: and response_header: keys
     #                unless code is put in place to process a request for the response_header data.
     def parse_authority_response(raw_response)
-      formatted_response = raw_response['search'].map do |doc|
+      raw_response['search'].map do |doc|
         { id: doc['id'], uri: doc['concepturi'], label: doc['label'], context: extended_context(doc) }
       end
-      {
-        results: formatted_response,
-        response_header: {
-          start_record: 1,
-          requested_records: "UNKNOWN",
-          retrieved_records: raw_response.count,
-          total_records: "UNKNOWN"
-        }
-      }
     end
 
     def extended_context(doc)
