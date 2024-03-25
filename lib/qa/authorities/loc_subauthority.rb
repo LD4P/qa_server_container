@@ -43,6 +43,7 @@ module Qa::Authorities::LocSubauthority # rubocop:disable Metrics/ModuleLength
       "frequencies",
       "geographicAreas",
       "graphicMaterials",
+      "identifiers",
       "iso639-1",
       "iso639-2",
       "iso639-5",
