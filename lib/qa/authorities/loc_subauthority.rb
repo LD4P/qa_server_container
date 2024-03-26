@@ -2,10 +2,11 @@
 
 module Qa::Authorities::LocSubauthority # rubocop:disable Metrics/ModuleLength
   def get_url_for_authority(authority)
-    if authorities.include?(authority) then authority_base_url
+    if authorities.include?(authority)     then authority_base_url
     elsif vocabularies.include?(authority) then vocab_base_url
     elsif datatypes.include?(authority)    then datatype_base_url
     elsif preservation.include?(authority) then vocab_preservation_base_url
+    elsif geography.include?(authority)    then vocab_geographic_areas_base_url
     end
   end
 
@@ -105,6 +106,10 @@ module Qa::Authorities::LocSubauthority # rubocop:disable Metrics/ModuleLength
     ["edtf"]
   end
 
+  def geography
+    ['geographicAreas']
+  end
+
   def preservation # rubocop:disable Metrics/MethodLength
     [
       "contentLocationType",
@@ -158,5 +163,9 @@ module Qa::Authorities::LocSubauthority # rubocop:disable Metrics/ModuleLength
 
   def vocab_preservation_base_url
     "cs%3Ahttp%3A%2F%2Fid.loc.gov%2Fvocabulary%2Fpreservation%2F"
+  end
+
+  def vocab_geographic_areas_base_url
+    "cs%3Ahttp%3A%2F%2Fid.loc.gov%2Fvocabulary%2FgeographicAreas%2F"
   end
 end
