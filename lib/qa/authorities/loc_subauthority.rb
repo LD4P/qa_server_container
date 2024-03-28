@@ -7,6 +7,9 @@ module Qa::Authorities::LocSubauthority # rubocop:disable Metrics/ModuleLength
     elsif datatypes.include?(authority)    then datatype_base_url
     elsif preservation.include?(authority) then vocab_preservation_base_url
     elsif geography.include?(authority)    then vocab_geographic_areas_base_url
+    elsif resources.include?(authority)    then resources_base_url
+    else
+      raise Qa::InvalidSubAuthority, "Subauthority '#{authority}' not supported by LOC"
     end
   end
 
@@ -147,6 +150,14 @@ module Qa::Authorities::LocSubauthority # rubocop:disable Metrics/ModuleLength
     ]
   end
 
+  def resources
+    [
+      'hubs',
+      'instances',
+      'works'
+    ]
+  end
+
   private
 
   def vocab_base_url
@@ -159,6 +170,10 @@ module Qa::Authorities::LocSubauthority # rubocop:disable Metrics/ModuleLength
 
   def datatype_base_url
     "cs%3Ahttp%3A%2F%2Fid.loc.gov%2Fdatatypes%2F"
+  end
+
+  def resources_base_url
+    "cs%3Ahttp%3A%2F%2Fid.loc.gov%2Fresources%2F"
   end
 
   def vocab_preservation_base_url
