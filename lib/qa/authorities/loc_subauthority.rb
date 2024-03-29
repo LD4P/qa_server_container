@@ -162,11 +162,11 @@ module Qa::Authorities::LocSubauthority # rubocop:disable Metrics/ModuleLength
   def subject_collections
     [
       'collection_LCSHAuthorizedHeadings',
-      'collection_LCSHSubdivisions',
-      'collection_LCSHTopicSubdivisions',
-      'collection_LCSHGeographicSubdivisions',
-      'collection_LCSHGenreFormSubdivisions',
-      'collection_LCSHTemporalSubdivisions'
+      'collection_Subdivisions',
+      'collection_TopicSubdivisions',
+      'collection_GeographicSubdivisions',
+      'collection_GenreFormSubdivisions',
+      'collection_TemporalSubdivisions'
     ]
   end
 
