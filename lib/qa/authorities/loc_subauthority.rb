@@ -8,6 +8,7 @@ module Qa::Authorities::LocSubauthority # rubocop:disable Metrics/ModuleLength
     elsif preservation.include?(authority) then vocab_preservation_base_url
     elsif geography.include?(authority)    then vocab_geographic_areas_base_url
     elsif resources.include?(authority)    then resources_base_url
+    elsif subject_collections.include?(authority) then subject_collection_base_url
     else
       raise Qa::InvalidSubAuthority, "Subauthority '#{authority}' not supported by LOC"
     end
@@ -158,6 +159,17 @@ module Qa::Authorities::LocSubauthority # rubocop:disable Metrics/ModuleLength
     ]
   end
 
+  def subject_collections
+    [
+      'collection_LCSHAuthorizedHeadings',
+      'collection_LCSHSubdivisions',
+      'collection_LCSHTopicSubdivisions',
+      'collection_LCSHGeographicSubdivisions',
+      'collection_LCSHGenreFormSubdivisions',
+      'collection_LCSHTemporalSubdivisions'
+    ]
+  end
+
   private
 
   def vocab_base_url
@@ -174,6 +186,10 @@ module Qa::Authorities::LocSubauthority # rubocop:disable Metrics/ModuleLength
 
   def resources_base_url
     "cs%3Ahttp%3A%2F%2Fid.loc.gov%2Fresources%2F"
+  end
+
+  def subject_collection_base_url
+    "memberOf%3Ahttp%3A%2F%2Fid.loc.gov%2Fauthorities%2Fsubjects%2F"
   end
 
   def vocab_preservation_base_url

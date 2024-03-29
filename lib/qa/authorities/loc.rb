@@ -14,7 +14,7 @@ module Qa::Authorities
 
     extend LocSubauthority
     def self.subauthorities
-      authorities + vocabularies + datatypes + preservation + rdftypes + resources
+      authorities + vocabularies + datatypes + preservation + rdftypes + resources + subject_collections + geography
     end
   end
 end
