@@ -24,6 +24,7 @@ module Qa::Authorities::LocSubauthority # rubocop:disable Metrics/ModuleLength
 
   def authorities
     [
+      "agents",
       "classification",
       "childrensSubjects",
       "demographicTerms",
@@ -143,6 +144,11 @@ module Qa::Authorities::LocSubauthority # rubocop:disable Metrics/ModuleLength
 
   def rdftypes
     [
+      "agents_ConferenceName",
+      "agents_CorporateName",
+      "agents_FamilyName",
+      "agents_Geographic",
+      "agents_PersonalName",
       "names_ConferenceName",
       "names_CorporateName",
       "names_FamilyName",
