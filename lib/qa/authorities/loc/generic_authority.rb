@@ -30,7 +30,8 @@ module Qa::Authorities
       escaped_query = ERB::Util.url_encode(q)
       authority = Loc.get_authority(subauthority)
       rdftype = Loc.get_rdftype(subauthority)
-      authority_fragment = Loc.get_url_for_authority(authority) + ERB::Util.url_encode(authority)
+      use_authority = authority == 'agents' ? 'names' : authority
+      authority_fragment = Loc.get_url_for_authority(use_authority) + ERB::Util.url_encode(use_authority)
       rdftype_fragment = "&q=rdftype:#{ERB::Util.url_encode(rdftype)}" if rdftype
       "https://id.loc.gov/search/?q=#{escaped_query}&q=#{authority_fragment}#{rdftype_fragment}&format=json"
     end
@@ -86,6 +87,11 @@ module Qa::Authorities
       }
 
       response["uri"] = (data.links.find { |l| l["type"].nil? } || data.links[0])["href"] if data.links.present?
+
+      if subauthority.include? 'agents'
+        response['id'].gsub!('authorities/names', 'rwo/agents')
+        response['uri'].gsub!('authorities/names', 'rwo/agents')
+      end
 
       response
     end
